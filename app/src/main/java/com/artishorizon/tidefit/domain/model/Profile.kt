@@ -28,7 +28,6 @@ enum class FitnessGoalType(val label: String, val hint: String) {
 
 enum class WeightUnit(val label: String) { KG("kg"), LB("lb") }
 enum class HeightUnit(val label: String) { CM("cm"), FT_IN("ft / in") }
-enum class ThemeMode(val label: String) { SYSTEM("System"), DARK("Dark"), LIGHT("Light") }
 
 /** Where a stored number came from. Keeps user input distinguishable from estimates. */
 enum class ValueSource { USER, FORMULA_ESTIMATE, COACHING_IMPORT, HEALTH_CONNECT }

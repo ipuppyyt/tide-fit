@@ -1,7 +1,6 @@
 package com.artishorizon.tidefit.core.designsystem
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,14 +25,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalContext
-import com.artishorizon.tidefit.domain.model.ThemeMode
 
 /** Status bar or display cutout, whichever is taller, at the top edge. */
 val SafeTop: WindowInsets
@@ -50,22 +44,12 @@ object FitTheme {
 
 @Composable
 fun TideFitTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = false,
+    paletteId: String? = null,
     content: @Composable () -> Unit
 ) {
-    val dark = when (themeMode) {
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
-        ThemeMode.DARK -> true
-        ThemeMode.LIGHT -> false
-    }
-    val context = LocalContext.current
-    val scheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-            if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        dark -> DarkScheme
-        else -> LightScheme
-    }
+    val palette = resolvePalette(paletteId)
+    val dark = palette.dark
+    val scheme = palette.scheme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -75,7 +59,7 @@ fun TideFitTheme(
             controller.isAppearanceLightNavigationBars = !dark
         }
     }
-    CompositionLocalProvider(LocalFitColors provides if (dark) DarkFitColors else LightFitColors) {
+    CompositionLocalProvider(LocalFitColors provides palette.fit) {
         MaterialTheme(colorScheme = scheme, typography = FitTypography, shapes = FitShapes) {
             // Paint the theme's own background so it never depends on the window's static colour.
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {

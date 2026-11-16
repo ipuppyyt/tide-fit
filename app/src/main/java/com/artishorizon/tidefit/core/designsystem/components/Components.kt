@@ -86,7 +86,7 @@ fun HeroCard(
         .fillMaxWidth()
         .let { if (onClick != null) it.pressable(onClick = onClick) else it }
         .clip(Radii.xl)
-        .background(Brush.linearGradient(listOf(c.hero, c.hero.copy(red = 0.55f, green = 0.84f, blue = 0.2f))))
+        .background(Brush.linearGradient(listOf(c.hero, androidx.compose.ui.graphics.lerp(c.hero, Color.Black, 0.22f))))
     CompositionLocalProvider(LocalContentColor provides c.onHero) {
         Box(base.padding(Spacing.xl)) { content() }
     }

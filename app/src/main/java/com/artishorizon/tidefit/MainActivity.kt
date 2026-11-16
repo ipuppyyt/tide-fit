@@ -11,7 +11,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.artishorizon.tidefit.domain.repository.AppSettings
 import com.artishorizon.tidefit.core.designsystem.TideFitTheme
-import com.artishorizon.tidefit.domain.model.ThemeMode
 import com.artishorizon.tidefit.feature.onboarding.OnboardingScreen
 import com.artishorizon.tidefit.navigation.MainNavigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,14 +24,13 @@ import javax.inject.Inject
 /** Null [onboardingDone] means settings are still loading; the splash screen stays up until it resolves. */
 data class RootState(
     val onboardingDone: Boolean? = null,
-    val themeMode: ThemeMode = ThemeMode.DARK,
-    val dynamicColor: Boolean = false
+    val paletteId: String? = null
 )
 
 @HiltViewModel
 class RootViewModel @Inject constructor(settings: AppSettings) : ViewModel() {
-    val state: StateFlow<RootState> = combine(settings.onboardingDone, settings.themeMode, settings.dynamicColor) { done, theme, dyn ->
-        RootState(done, theme, dyn)
+    val state: StateFlow<RootState> = combine(settings.onboardingDone, settings.palette) { done, palette ->
+        RootState(done, palette)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, RootState())
 }
 
@@ -47,7 +45,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val state = root.state.collectAsStateWithLifecycle().value
-            TideFitTheme(state.themeMode, state.dynamicColor) {
+            TideFitTheme(state.paletteId) {
                 when (state.onboardingDone) {
                     null -> Unit
                     false -> OnboardingScreen()

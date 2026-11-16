@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.artishorizon.tidefit.domain.repository.AppSettings
 import com.artishorizon.tidefit.domain.model.DailyTargets
-import com.artishorizon.tidefit.domain.model.ThemeMode
 import com.artishorizon.tidefit.domain.model.UserProfile
 import com.artishorizon.tidefit.domain.repository.ProfileRepository
 import com.artishorizon.tidefit.feature.profile.form.ProfileForm
@@ -26,8 +25,7 @@ data class ProfileUiState(
     val loading: Boolean = true,
     val profile: UserProfile? = null,
     val targets: DailyTargets? = null,
-    val themeMode: ThemeMode = ThemeMode.DARK,
-    val dynamicColor: Boolean = false
+    val paletteId: String? = null
 )
 
 @HiltViewModel
@@ -39,14 +37,12 @@ class ProfileViewModel @Inject constructor(
     val state: StateFlow<ProfileUiState> = combine(
         profiles.observeProfile(),
         profiles.observeCurrentTargets(),
-        settings.themeMode,
-        settings.dynamicColor
-    ) { profile, targets, theme, dynamic ->
-        ProfileUiState(false, profile, targets, theme, dynamic)
+        settings.palette
+    ) { profile, targets, palette ->
+        ProfileUiState(false, profile, targets, palette)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProfileUiState())
 
-    fun setTheme(mode: ThemeMode) = viewModelScope.launch { settings.setThemeMode(mode) }
-    fun setDynamicColor(enabled: Boolean) = viewModelScope.launch { settings.setDynamicColor(enabled) }
+    fun setPalette(id: String?) = viewModelScope.launch { settings.setPalette(id) }
 }
 
 data class ProfileEditUiState(

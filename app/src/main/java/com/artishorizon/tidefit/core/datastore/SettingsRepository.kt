@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.artishorizon.tidefit.domain.model.ReminderKind
 import com.artishorizon.tidefit.domain.model.ReminderSetting
-import com.artishorizon.tidefit.domain.model.ThemeMode
 import com.artishorizon.tidefit.domain.repository.AppSettings
 import com.artishorizon.tidefit.domain.repository.ReminderSettings
 import kotlinx.coroutines.flow.first
@@ -23,17 +22,12 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 @Singleton
 class SettingsRepository @Inject constructor(@ApplicationContext private val context: Context) : AppSettings, ReminderSettings {
     private object Keys {
-        val theme = stringPreferencesKey("theme_mode")
-        val dynamicColor = booleanPreferencesKey("dynamic_color")
+        val palette = stringPreferencesKey("palette")
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val glassMl = intPreferencesKey("default_glass_ml")
     }
 
-    override val themeMode: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
-        prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.DARK
-    }
-
-    override val dynamicColor: Flow<Boolean> = context.dataStore.data.map { it[Keys.dynamicColor] ?: false }
+    override val palette: Flow<String?> = context.dataStore.data.map { it[Keys.palette] }
 
     override val onboardingDone: Flow<Boolean> = context.dataStore.data.map { it[Keys.onboardingDone] ?: false }
 
@@ -55,7 +49,6 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
     }
 
     override suspend fun setDefaultGlassMl(ml: Int) { context.dataStore.edit { it[Keys.glassMl] = ml.coerceIn(50, 2000) } }
-    override suspend fun setThemeMode(mode: ThemeMode) { context.dataStore.edit { it[Keys.theme] = mode.name } }
-    override suspend fun setDynamicColor(enabled: Boolean) { context.dataStore.edit { it[Keys.dynamicColor] = enabled } }
+    override suspend fun setPalette(id: String?) { context.dataStore.edit { if (id == null) it.remove(Keys.palette) else it[Keys.palette] = id } }
     override suspend fun setOnboardingDone(done: Boolean) { context.dataStore.edit { it[Keys.onboardingDone] = done } }
 }

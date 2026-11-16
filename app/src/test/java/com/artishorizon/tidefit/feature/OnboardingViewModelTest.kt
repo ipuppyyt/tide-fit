@@ -1,7 +1,6 @@
 package com.artishorizon.tidefit.feature
 
 import com.artishorizon.tidefit.domain.model.DailyTargets
-import com.artishorizon.tidefit.domain.model.ThemeMode
 import com.artishorizon.tidefit.domain.model.UserProfile
 import com.artishorizon.tidefit.domain.repository.AppSettings
 import com.artishorizon.tidefit.domain.repository.ProfileRepository
@@ -26,13 +25,11 @@ import java.time.ZoneOffset
 
 private class FakeSettings : AppSettings {
     val done = MutableStateFlow(false)
-    override val themeMode: Flow<ThemeMode> = MutableStateFlow(ThemeMode.SYSTEM)
-    override val dynamicColor: Flow<Boolean> = MutableStateFlow(false)
+    override val palette: Flow<String?> = MutableStateFlow(null)
     override val onboardingDone: Flow<Boolean> = done
     override val defaultGlassMl: Flow<Int> = MutableStateFlow(250)
     override suspend fun setDefaultGlassMl(ml: Int) {}
-    override suspend fun setThemeMode(mode: ThemeMode) {}
-    override suspend fun setDynamicColor(enabled: Boolean) {}
+    override suspend fun setPalette(id: String?) {}
     override suspend fun setOnboardingDone(done: Boolean) { this.done.value = done }
 }
 

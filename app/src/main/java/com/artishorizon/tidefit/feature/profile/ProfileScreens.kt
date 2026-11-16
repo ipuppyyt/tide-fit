@@ -38,6 +38,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.artishorizon.tidefit.R
 import com.artishorizon.tidefit.core.designsystem.FitTheme
+import com.artishorizon.tidefit.core.designsystem.Palette
+import com.artishorizon.tidefit.core.designsystem.Palettes
+import com.artishorizon.tidefit.core.designsystem.systemPalette
 import com.artishorizon.tidefit.core.designsystem.Radii
 import com.artishorizon.tidefit.core.designsystem.Spacing
 import com.artishorizon.tidefit.core.designsystem.components.EstimateBadge
@@ -49,14 +52,12 @@ import com.artishorizon.tidefit.core.designsystem.components.LoadingState
 import com.artishorizon.tidefit.core.designsystem.components.PhotoCard
 import com.artishorizon.tidefit.core.designsystem.components.PrimaryButton
 import com.artishorizon.tidefit.core.designsystem.components.SectionHeader
-import com.artishorizon.tidefit.core.designsystem.components.Switch
 import com.artishorizon.tidefit.core.designsystem.components.lucide
 import com.artishorizon.tidefit.core.designsystem.components.pressable
 import com.artishorizon.tidefit.domain.calc.BodyMetrics
 import com.artishorizon.tidefit.domain.calc.Units
 import com.artishorizon.tidefit.domain.calc.calorieLimitsFor
 import com.artishorizon.tidefit.domain.model.DailyTargets
-import com.artishorizon.tidefit.domain.model.ThemeMode
 import com.artishorizon.tidefit.domain.model.UserProfile
 import com.artishorizon.tidefit.domain.model.ValueSource
 import com.artishorizon.tidefit.feature.profile.form.BasicsSection
@@ -88,12 +89,12 @@ fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () 
             }
 
             Group("Your data") {
-                SettingRow("layers", "Data & backup", "Export, import and restore everything", Color(0xFFC6F135), onOpenData)
+                SettingRow("layers", "Data & backup", "Export, import and restore everything", MaterialTheme.colorScheme.primary, onOpenData)
                 SettingRow("bell", "Reminders", "Water, meals, workouts and weigh-ins", Color(0xFFFFB84D), onOpenData)
                 SettingRow("activity", "Health Connect", "Import steps, sleep and weight", Color(0xFFFF6B6B), onOpenData, last = true)
             }
 
-            ThemeCard(state.themeMode, { viewModel.setTheme(it) }, state.dynamicColor, viewModel::setDynamicColor)
+            PaletteCard(state.paletteId, viewModel::setPalette)
             PrivacyBanner()
             Spacer(Modifier.height(Spacing.lg).navigationBarsPadding())
         }
@@ -254,7 +255,7 @@ private fun TargetsBento(p: UserProfile, targets: DailyTargets?) {
         val accent = MaterialTheme.colorScheme.primary
         Box(
             Modifier.fillMaxWidth().clip(Radii.xl)
-                .background(Brush.linearGradient(listOf(Color(0xFFC6F135), Color(0xFF8FD11F))))
+                .background(Brush.linearGradient(listOf(FitTheme.colors.hero, androidx.compose.ui.graphics.lerp(FitTheme.colors.hero, Color.Black, 0.22f))))
                 .padding(20.dp)
         ) {
             Icon(lucide("flame"), null, tint = Color.Black.copy(alpha = 0.10f), modifier = Modifier.size(104.dp).align(Alignment.CenterEnd))
@@ -349,46 +350,62 @@ private fun SettingRow(icon: String, title: String, subtitle: String, tint: Colo
 }
 
 @Composable
-private fun ThemeCard(mode: ThemeMode, onMode: (ThemeMode) -> Unit, dynamic: Boolean, onDynamic: (Boolean) -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
+private fun PaletteCard(selectedId: String?, onSelect: (String?) -> Unit) {
+    val system = systemPalette()
+    val auto = selectedId == null || Palettes.byId(selectedId) == null
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
         SectionHeader("Appearance")
         Column(
             Modifier.fillMaxWidth().clip(Radii.xl).background(MaterialTheme.colorScheme.surfaceContainerHigh).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ThemeMode.entries.forEach { m ->
-                    val selected = m == mode
-                    val (icon, bg, fg) = when (m.label) {
-                        "Dark" -> Triple("moon", Color(0xFF14171C), Color.White)
-                        "Light" -> Triple("sun", Color(0xFFF4F5F0), Color(0xFF14171C))
-                        else -> Triple("sliders-horizontal", Brush.horizontalGradient(0f to Color(0xFF14171C), 0.5f to Color(0xFF14171C), 0.5f to Color(0xFFF4F5F0), 1f to Color(0xFFF4F5F0)), Color(0xFFE05A6B))
-                    }
-                    Column(
-                        Modifier.weight(1f).clip(RoundedCornerShape(18.dp))
-                            .border(if (selected) 2.dp else 1.dp, if (selected) accent else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
-                            .pressable { onMode(m) }.padding(bottom = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(
-                            Modifier.fillMaxWidth().height(64.dp).let { if (bg is Brush) it.background(bg) else it.background(bg as Color) },
-                            contentAlignment = Alignment.Center
-                        ) { Icon(lucide(icon), null, tint = fg, modifier = Modifier.size(24.dp)) }
-                        Text(m.label, style = MaterialTheme.typography.labelLarge, color = if (selected) accent else MaterialTheme.colorScheme.onSurface)
-                    }
-                }
-            }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Box(Modifier.size(42.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFFB78CFF).copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
-                    Icon(lucide("palette"), null, tint = Color(0xFFB78CFF), modifier = Modifier.size(21.dp))
-                }
+            val accent = MaterialTheme.colorScheme.primary
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))
+                    .border(if (auto) 2.dp else 1.dp, if (auto) accent else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                    .pressable { onSelect(null) }.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                PaletteSwatch(system, Modifier.size(width = 64.dp, height = 48.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Dynamic colour", style = MaterialTheme.typography.titleSmall)
-                    Text("Match your wallpaper (Android 12+)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Match my phone", style = MaterialTheme.typography.titleSmall)
+                    Text("Picks ${system.name} from your system colours", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Switch(dynamic, onDynamic)
+                if (auto) Icon(lucide("badge-check"), null, tint = accent, modifier = Modifier.size(22.dp))
             }
+            listOf("Dark" to true, "Light" to false).forEach { (title, isDark) ->
+                Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Palettes.all.filter { it.dark == isDark }.chunked(3).forEach { row ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        row.forEach { p ->
+                            val selected = !auto && p.id == selectedId
+                            Column(
+                                Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                                    .border(if (selected) 2.dp else 1.dp, if (selected) accent else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+                                    .pressable { onSelect(p.id) }.padding(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                PaletteSwatch(p, Modifier.fillMaxWidth().height(52.dp))
+                                Text(p.name, style = MaterialTheme.typography.labelMedium, color = if (selected) accent else MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Miniature of a palette: its background, a raised card and the accent. */
+@Composable
+private fun PaletteSwatch(p: Palette, modifier: Modifier) {
+    Box(
+        modifier.clip(RoundedCornerShape(12.dp)).background(p.background)
+            .border(1.dp, p.fit.border, RoundedCornerShape(12.dp)).padding(6.dp)
+    ) {
+        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(7.dp)).background(p.surface))
+            Box(Modifier.size(16.dp).clip(CircleShape).background(p.accent))
         }
     }
 }
