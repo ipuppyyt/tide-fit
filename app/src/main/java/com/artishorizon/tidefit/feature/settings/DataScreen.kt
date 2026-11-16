@@ -212,7 +212,7 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     Text(
-                        "A backup is a single file with everything: profile, food, workouts, body data and coaching history. It isn't encrypted. " +
+                        "A backup is a single file with everything: profile and photo, food, workouts, body data and coaching history. It isn't encrypted. " +
                             "TIDE Fit has no cloud, so this file is how you move to a new phone or recover after a reset.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

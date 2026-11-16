@@ -2,9 +2,11 @@ package com.artishorizon.tidefit.data
 
 import android.content.Context
 import android.content.Intent
+import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.artishorizon.tidefit.core.database.AppDatabase
+import com.artishorizon.tidefit.core.media.AvatarStore
 import com.artishorizon.tidefit.domain.repository.AppSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +53,8 @@ object BackupValidator {
 class BackupManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    private val settings: AppSettings
+    private val settings: AppSettings,
+    private val avatar: AvatarStore
 ) {
     sealed interface RestoreResult {
         /** Data was replaced; call [restartApp] next. */
@@ -61,14 +64,44 @@ class BackupManager @Inject constructor(
 
     private val dbFile: File get() = context.getDatabasePath(AppDatabase.NAME)
 
+    private companion object { const val AVATAR_TABLE = "backup_avatar" }
+
     /** Writes a consistent copy of the database to [target]. Returns the size in bytes. */
     suspend fun export(target: Uri): Long = withContext(Dispatchers.IO) {
         // Fold the write-ahead log into the main file so the single file we copy is complete.
         db.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
-        val out = context.contentResolver.openOutputStream(target, "w") ?: error("Couldn't open the destination.")
-        out.use { dbFile.inputStream().use { input -> input.copyTo(it) } }
-        dbFile.length()
+        // Work on a copy so the profile photo can ride along inside the same single-file backup.
+        val copy = File(context.cacheDir, "export_candidate.db")
+        try {
+            dbFile.copyTo(copy, overwrite = true)
+            avatar.readBytes()?.let { embedAvatar(copy, it) }
+            val out = context.contentResolver.openOutputStream(target, "w") ?: error("Couldn't open the destination.")
+            out.use { copy.inputStream().use { input -> input.copyTo(it) } }
+            copy.length()
+        } finally {
+            copy.delete(); File(copy.path + "-wal").delete(); File(copy.path + "-shm").delete(); File(copy.path + "-journal").delete()
+        }
     }
+
+    /** Stores the photo in a side table of the backup file. Room ignores tables it does not own. */
+    private fun embedAvatar(file: File, jpeg: ByteArray) {
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { d ->
+            d.rawQuery("PRAGMA journal_mode=DELETE", null).use { it.moveToFirst() }
+            d.execSQL("CREATE TABLE IF NOT EXISTS $AVATAR_TABLE (id INTEGER PRIMARY KEY, jpeg BLOB NOT NULL)")
+            d.delete(AVATAR_TABLE, null, null)
+            d.insert(AVATAR_TABLE, null, ContentValues().apply { put("id", 1); put("jpeg", jpeg) })
+        }
+    }
+
+    /** Pulls the photo out of a staged backup (if it has one) and removes the side table so the live database stays clean. */
+    private fun extractAvatar(file: File): ByteArray? =
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { d ->
+            val has = d.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(AVATAR_TABLE)).use { it.moveToFirst() }
+            if (!has) return@use null
+            val bytes = d.rawQuery("SELECT jpeg FROM $AVATAR_TABLE LIMIT 1", null).use { if (it.moveToFirst()) it.getBlob(0) else null }
+            d.execSQL("DROP TABLE $AVATAR_TABLE")
+            bytes
+        }
 
     /**
      * Replaces all app data with the backup in [source]. The file is validated first, and the current data is kept
@@ -87,6 +120,8 @@ class BackupManager @Inject constructor(
             db.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
             dbFile.copyTo(File(context.filesDir, "pre_restore_backup.db"), overwrite = true)
 
+            val photo = runCatching { extractAvatar(staged) }.getOrNull()
+
             db.close()
             File(dbFile.path + "-wal").delete()
             File(dbFile.path + "-shm").delete()
@@ -94,6 +129,8 @@ class BackupManager @Inject constructor(
 
             // Onboarding state lives outside the database; without this a restored install would re-run onboarding.
             settings.setOnboardingDone(verdict.hasProfile)
+            // A backup made before photos existed has none; keep whatever photo is already set in that case.
+            if (photo != null && avatar.writeBytes(photo)) settings.setAvatarVersion(System.currentTimeMillis())
             RestoreResult.Replaced
         } catch (e: Exception) {
             RestoreResult.Failed("The restore failed: ${e.message ?: "unknown error"}")

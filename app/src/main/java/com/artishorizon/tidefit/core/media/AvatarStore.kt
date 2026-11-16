@@ -59,6 +59,14 @@ class AvatarStore @Inject constructor(@ApplicationContext private val context: C
         }.getOrDefault(false)
     }
 
+    /** Raw JPEG bytes for backup, or null when no photo is set. */
+    suspend fun readBytes(): ByteArray? = withContext(Dispatchers.IO) { if (file.exists()) file.readBytes() else null }
+
+    /** Restores a photo from a backup. Returns false (and leaves the current photo) if the bytes are not a decodable image. */
+    suspend fun writeBytes(bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
+        if (BitmapFactory.decodeByteArray(bytes, 0, bytes.size) == null) false else runCatching { file.writeBytes(bytes); true }.getOrDefault(false)
+    }
+
     suspend fun clear() = withContext(Dispatchers.IO) { file.delete(); Unit }
 
     suspend fun load(): ImageBitmap? = withContext(Dispatchers.IO) {
