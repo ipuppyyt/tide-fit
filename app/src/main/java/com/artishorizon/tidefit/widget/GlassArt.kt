@@ -91,63 +91,70 @@ class GlassArt(context: Context, widthDp: Int, heightDp: Int) {
     fun calories(snap: WidgetSnapshot): Bitmap {
         val (bmp, c) = card(Glow.ORANGE)
         val pad = dp(20f)
-        val muted = 0xFF9096A0.toInt()
-        text(c, "Eaten today", pad, dp(34f), 13f, muted)
-        bigValue(c, "%,d".format(snap.eatenKcal), "kcal", pad, dp(34f) + dp(36f), 30f)
         val left = snap.leftKcal
-        text(c, if (left != null && left < 0) "Calories over" else "Calories left", pad, h - dp(64f), 13f, 0xCCFFE0C4.toInt())
-        bigValue(c, left?.let { "%,d".format(abs(it)) } ?: "-", "kcal", pad, h - dp(24f), 30f)
-
-        val frame = RectF(w * 0.55f, pad, w - pad, h - pad)
         val target = snap.targetKcal
-        val progress = if (target != null && target > 0) (snap.eatenKcal.toFloat() / target).coerceIn(0f, 1f) else 0f
-        loop(c, frame, progress)
+        val progress = if (target != null && target > 0) snap.eatenKcal.toFloat() / target else 0f
+
+        // Ring on the right, as large as the card allows.
+        val dia = minOf(h - 2 * pad, w * 0.40f)
+        val ring = RectF(w - pad - dia, (h - dia) / 2f, w - pad, (h + dia) / 2f)
+        donut(c, ring, progress)
+        val pct = "${(progress * 100).toInt()}%"
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = bold; paint.textSize = dp(if (dia > dp(110f)) 22f else 17f); paint.color = 0xFFFFFFFF.toInt(); paint.style = Paint.Style.FILL
+        c.drawText(pct, ring.centerX(), ring.centerY() + dp(7f), paint)
+        paint.textAlign = Paint.Align.LEFT
+        text(c, "eaten", ring.centerX() - textWidth("eaten", 11f, false) / 2f, ring.centerY() + dp(24f), 11f, 0xFFD0D3DA.toInt())
+
+        // Left: headline number, then macro bars.
+        val over = left != null && left < 0
+        text(c, if (over) "Calories over" else "Calories left", pad, dp(32f), 13f, 0xFFC9CDD6.toInt())
+        bigValue(c, left?.let { "%,d".format(abs(it)) } ?: "-", "kcal", pad, dp(32f) + dp(40f), 34f)
+        if (target != null) text(c, "%,d of %,d kcal".format(snap.eatenKcal, target), pad, dp(32f) + dp(62f), 12f, 0xFFD0D3DA.toInt())
+
+        val barsW = ring.left - pad - dp(16f)
+        val rowH = dp(30f)
+        val top = h - pad - rowH * 3 + dp(4f)
+        macro(c, "Protein", snap.proteinG, snap.proteinTargetG, pad, top, barsW)
+        macro(c, "Carbs", snap.carbsG, snap.carbsTargetG, pad, top + rowH, barsW)
+        macro(c, "Fat", snap.fatG, snap.fatTargetG, pad, top + rowH * 2, barsW)
         return bmp
     }
 
-    /** A rounded-square track with a bright arc that starts on the bottom edge and runs anticlockwise, ending in a dot. */
-    private fun loop(c: Canvas, frame: RectF, progress: Float) {
-        val inset = dp(8f)
-        val f = RectF(frame.left + inset, frame.top + inset, frame.right - inset, frame.bottom - inset)
-        val path = Path().apply { addRoundRect(f, dp(22f), dp(22f), Path.Direction.CW) }
-        val pm = PathMeasure(path, true)
-        val len = pm.length
-        paint.style = Paint.Style.STROKE; paint.strokeCap = Paint.Cap.ROUND; paint.strokeWidth = dp(7f); paint.shader = null
-        paint.color = 0x33FFFFFF
-        c.drawPath(path, paint)
-        if (progress <= 0f) return
+    private fun macro(c: Canvas, name: String, eaten: Int, target: Int?, x: Float, y: Float, width: Float) {
+        text(c, name, x, y + dp(8f), 11f, 0xFFD0D3DA.toInt())
+        val value = if (target != null) "$eaten/${target}g" else "${eaten}g"
+        paint.typeface = regular; paint.textSize = dp(11f)
+        text(c, value, x + width - paint.measureText(value), y + dp(8f), 11f, 0xFFFFFFFF.toInt())
+        val bar = RectF(x, y + dp(14f), x + width, y + dp(19f))
+        paint.style = Paint.Style.FILL; paint.shader = null; paint.color = 0x38000000
+        c.drawRoundRect(bar, dp(3f), dp(3f), paint)
+        val f = if (target != null && target > 0) (eaten.toFloat() / target).coerceIn(0f, 1f) else 0f
+        if (f > 0f) {
+            paint.color = 0xFFFFFFFF.toInt()
+            c.drawRoundRect(RectF(bar.left, bar.top, bar.left + bar.width() * f.coerceAtLeast(0.05f), bar.bottom), dp(3f), dp(3f), paint)
+        }
+    }
 
-        // The arc begins on the bottom edge, a fifth of the way in, and runs right then up.
-        val sx = f.left + f.width() * 0.2f
-        var start = 0f
-        var best = Float.MAX_VALUE
-        val pos = FloatArray(2)
-        for (i in 0 until 600) {
-            val dist = len * i / 600f
-            pm.getPosTan(dist, pos, null)
-            val e = hypot(pos[0] - sx, pos[1] - f.bottom)
-            if (e < best) { best = e; start = dist }
-        }
-        // Direction: CW path runs left-to-right along the bottom edge on screen only if walking backwards, so pick whichever heads right.
-        pm.getPosTan((start + 4f) % len, pos, null)
-        val goesRight = pos[0] > sx
-        val arc = Path()
-        if (goesRight) {
-            val end = start + len * progress
-            if (end <= len) pm.getSegment(start, end, arc, true)
-            else { pm.getSegment(start, len, arc, true); pm.getSegment(0f, end - len, arc, true) }
-            pm.getPosTan(if (end <= len) end else end - len, pos, null)
-        } else {
-            val end = start - len * progress
-            if (end >= 0f) pm.getSegment(end, start, arc, true)
-            else { pm.getSegment(0f, start, arc, true); pm.getSegment(len + end, len, arc, true) }
-            pm.getPosTan(if (end >= 0f) end else len + end, pos, null)
-        }
-        paint.shader = LinearGradient(f.left, f.bottom, f.right, f.top, intArrayOf(0xFFFF3D00.toInt(), 0xFFFF7A00.toInt(), 0xFFFFC21A.toInt()), null, Shader.TileMode.CLAMP)
-        c.drawPath(arc, paint)
+    /** A thick ring with a gradient arc from the top, clockwise, ending in a bright dot. */
+    private fun donut(c: Canvas, r: RectF, progress: Float) {
+        val stroke = dp(10f)
+        val oval = RectF(r.left + stroke, r.top + stroke, r.right - stroke, r.bottom - stroke)
+        paint.style = Paint.Style.STROKE; paint.strokeCap = Paint.Cap.ROUND; paint.strokeWidth = stroke; paint.shader = null
+        paint.color = 0x33FFFFFF
+        c.drawArc(oval, 0f, 360f, false, paint)
+        val p = progress.coerceIn(0f, 1f)
+        if (p <= 0f) return
+        c.save()
+        c.rotate(-90f, oval.centerX(), oval.centerY())
+        paint.shader = android.graphics.SweepGradient(oval.centerX(), oval.centerY(), intArrayOf(0xFFFF3D00.toInt(), 0xFFFF8A00.toInt(), 0xFFFFE066.toInt()), floatArrayOf(0f, 0.5f * p.coerceAtLeast(0.2f), p.coerceAtLeast(0.25f)))
+        c.drawArc(oval, 0f, 360f * p, false, paint)
         paint.shader = null
-        paint.style = Paint.Style.FILL; paint.color = 0xFFFFC21A.toInt()
-        c.drawCircle(pos[0], pos[1], dp(7f), paint)
+        c.restore()
+        val ang = Math.toRadians((360.0 * p) - 90.0)
+        val rad = oval.width() / 2f
+        paint.style = Paint.Style.FILL; paint.color = 0xFFFFFFFF.toInt()
+        c.drawCircle(oval.centerX() + (rad * Math.cos(ang)).toFloat(), oval.centerY() + (rad * Math.sin(ang)).toFloat(), dp(4.5f), paint)
     }
 
     // ------------------------------------------------------------------ water

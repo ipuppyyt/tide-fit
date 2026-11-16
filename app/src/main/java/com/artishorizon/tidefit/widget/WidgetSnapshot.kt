@@ -14,6 +14,8 @@ data class WidgetSnapshot(
     val waterTargetMl: Int?,
     val workoutMinutes: Int,
     val workoutName: String?,
+    val proteinG: Int = 0, val carbsG: Int = 0, val fatG: Int = 0,
+    val proteinTargetG: Int? = null, val carbsTargetG: Int? = null, val fatTargetG: Int? = null,
     val streak: Int = 0,
     val streakToday: Boolean = false,
     val week: List<Boolean> = emptyList()
@@ -25,13 +27,16 @@ data class WidgetSnapshot(
             val today = LocalDate.now(ep.clock())
             val zone = ZoneId.systemDefault()
             val targets = ep.profiles().observeCurrentTargets().first()
-            val eaten = ep.foodLog().observeDay(today).first().sumOf { it.total.calories }.toInt()
+            val entries = ep.foodLog().observeDay(today).first()
+            val eaten = entries.sumOf { it.total.calories }.toInt()
             val water = ep.water().observeDay(today).first().filter { it.kind == BeverageKind.WATER }.sumOf { it.amountMl }
             val sessions = ep.workouts().observeHistory().first()
                 .filter { it.endedAt != null && it.startedAt.atZone(zone).toLocalDate() == today }
             val minutes = sessions.sumOf { Duration.between(it.startedAt, it.endedAt).toMinutes() }.toInt()
             val streak = ep.streaks().current()
-            return WidgetSnapshot(eaten, targets?.caloriesKcal, water, targets?.waterMl, minutes, sessions.maxByOrNull { it.startedAt }?.name, streak.current, streak.todayDone, streak.week.map { it.second })
+            return WidgetSnapshot(eaten, targets?.caloriesKcal, water, targets?.waterMl, minutes, sessions.maxByOrNull { it.startedAt }?.name,
+                entries.sumOf { it.total.protein }.toInt(), entries.sumOf { it.total.carbs }.toInt(), entries.sumOf { it.total.fat }.toInt(),
+                targets?.proteinG, targets?.carbohydratesG, targets?.fatG, streak.current, streak.todayDone, streak.week.map { it.second })
         }
     }
 }
