@@ -94,6 +94,7 @@ interface ReminderEntryPoint {
     fun water(): WaterRepository
     fun weights(): WeightRepository
     fun profiles(): ProfileRepository
+    fun streak(): com.artishorizon.tidefit.data.StreakTracker
     fun clock(): Clock
 }
 
@@ -110,14 +111,19 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
             val foodCount = ep.foodLog().observeDay(today).first().size
             val weighedIn = ep.weights().observeAll().first().any { it.date == today }
             val target = ep.profiles().observeCurrentTargets().first()?.waterMl
-            if (ReminderRules.shouldNotify(kind, waterMl, target, foodCount, weighedIn)) notify(kind)
+            val streak = ep.streak().current()
+            val atRisk = !streak.todayDone && streak.current > 0
+            if (ReminderRules.shouldNotify(kind, waterMl, target, foodCount, weighedIn, atRisk)) {
+                if (kind == ReminderKind.STREAK) notify(kind, "Don't lose your ${streak.current}-day streak", "Log a meal or finish a workout today to keep it going.")
+                else notify(kind)
+            }
         } finally {
             ep.scheduler().apply(setting, replace = true) // always queue tomorrow's, even if today's check failed
         }
         return Result.success()
     }
 
-    private fun notify(kind: ReminderKind) {
+    private fun notify(kind: ReminderKind, title: String = kind.notificationTitle, text: String = kind.notificationText) {
         if (!hasNotificationPermission(applicationContext)) return
         ensureReminderChannel(applicationContext)
         val open = PendingIntent.getActivity(
@@ -126,8 +132,8 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         )
         val n = NotificationCompat.Builder(applicationContext, REMINDER_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(kind.notificationTitle)
-            .setContentText(kind.notificationText)
+            .setContentTitle(title)
+            .setContentText(text)
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()

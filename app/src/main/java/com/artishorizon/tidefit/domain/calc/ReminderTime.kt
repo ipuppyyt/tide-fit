@@ -10,11 +10,13 @@ object ReminderRules {
         waterMlToday: Int,
         waterTargetMl: Int?,
         foodEntriesToday: Int,
-        weighedInToday: Boolean
+        weighedInToday: Boolean,
+        streakAtRisk: Boolean = false
     ): Boolean = when (kind) {
         com.artishorizon.tidefit.domain.model.ReminderKind.WATER -> if (waterTargetMl != null) waterMlToday < waterTargetMl else waterMlToday == 0
         com.artishorizon.tidefit.domain.model.ReminderKind.MEALS -> foodEntriesToday == 0
         com.artishorizon.tidefit.domain.model.ReminderKind.WEIGH_IN -> !weighedInToday
+        com.artishorizon.tidefit.domain.model.ReminderKind.STREAK -> streakAtRisk
     }
 }
 
