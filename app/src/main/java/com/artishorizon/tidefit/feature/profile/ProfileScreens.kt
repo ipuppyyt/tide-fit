@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import com.artishorizon.tidefit.core.media.AvatarCropHost
 import com.artishorizon.tidefit.core.media.AvatarViewModel
 import com.artishorizon.tidefit.core.designsystem.components.SecondaryButton
 import androidx.compose.foundation.background
@@ -82,6 +83,7 @@ fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () 
     val avatarVm: AvatarViewModel = hiltViewModel()
     val avatar by avatarVm.image.collectAsStateWithLifecycle()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(avatarVm::pick) }
+    AvatarCropHost(avatarVm)
     if (state.loading) { LoadingState(); return }
 
     Column(Modifier.fillMaxSize()) {
@@ -498,6 +500,7 @@ private fun PhotoSection() {
     val vm: AvatarViewModel = hiltViewModel()
     val image by vm.image.collectAsStateWithLifecycle()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(vm::pick) }
+    AvatarCropHost(vm)
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.lg)) {
         Box(
             Modifier.size(84.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
