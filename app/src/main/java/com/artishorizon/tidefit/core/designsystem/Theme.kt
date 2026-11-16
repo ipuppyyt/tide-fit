@@ -5,6 +5,14 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +34,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import com.artishorizon.tidefit.domain.model.ThemeMode
+
+/** Status bar or display cutout, whichever is taller, at the top edge. */
+val SafeTop: WindowInsets
+    @Composable get() = WindowInsets.statusBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Top)
+
+/** System bars and display cutout on the left and right edges (landscape, foldables). */
+val SafeHorizontal: WindowInsets
+    @Composable get() = WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
 
 object FitTheme {
     val colors: FitColors
@@ -64,16 +80,26 @@ fun TideFitTheme(
             // Paint the theme's own background so it never depends on the window's static colour.
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
-                    content()
+                    // Keep everything out of side cutouts and landscape system bars; top/bottom are handled per screen.
+                    Box(Modifier.fillMaxSize().windowInsetsPadding(SafeHorizontal)) { content() }
                     // Scrim so scrolling content fades out under the status bar instead of colliding with the clock.
                     val bg = MaterialTheme.colorScheme.background
-                    val bar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                    val bar = SafeTop.asPaddingValues().calculateTopPadding()
                     val height = bar + 20.dp
                     val solid = bar / height
                     Box(
                         Modifier.align(Alignment.TopCenter).fillMaxWidth().height(height)
                             .background(Brush.verticalGradient(0f to bg, solid to bg, 1f to bg.copy(alpha = 0f)))
                     )
+                    // Same fade above the gesture bar / 3-button bar so text never sits under the system handle.
+                    val navBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    if (navBar > 0.dp) {
+                        val h = navBar + 16.dp
+                        Box(
+                            Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(h)
+                                .background(Brush.verticalGradient(0f to bg.copy(alpha = 0f), 1f - navBar / h to bg, 1f to bg))
+                        )
+                    }
                 }
             }
         }

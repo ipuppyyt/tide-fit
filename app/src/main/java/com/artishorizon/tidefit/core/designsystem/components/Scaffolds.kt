@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,7 +32,7 @@ import com.artishorizon.tidefit.domain.model.NutritionSource
 @Composable
 fun FitTopBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     Row(
-        modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 64.dp).padding(horizontal = Spacing.lg),
+        modifier.fillMaxWidth().windowInsetsPadding(com.artishorizon.tidefit.core.designsystem.SafeTop).heightIn(min = 64.dp).padding(horizontal = Spacing.lg),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

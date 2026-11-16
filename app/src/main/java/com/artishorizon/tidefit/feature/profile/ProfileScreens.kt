@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -94,7 +95,7 @@ fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () 
 
             ThemeCard(state.themeMode, { viewModel.setTheme(it) }, state.dynamicColor, viewModel::setDynamicColor)
             PrivacyBanner()
-            Spacer(Modifier.height(Spacing.lg))
+            Spacer(Modifier.height(Spacing.lg).navigationBarsPadding())
         }
     }
 }

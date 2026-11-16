@@ -2,6 +2,9 @@ package com.artishorizon.tidefit.navigation
 
 import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -109,6 +112,7 @@ fun MainNavigation() {
     val showBar = topLevel.any { it.matches(destination) }
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets.systemBars.union(androidx.compose.foundation.layout.WindowInsets.displayCutout),
         bottomBar = {
             if (showBar) {
                 FloatingTabBar(
