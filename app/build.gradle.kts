@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    namespace = "com.fitos.app"
+    namespace = "com.artishorizon.tidefit"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.fitos.app"
+        applicationId = "com.artishorizon.tidefit"
         minSdk = 29
         targetSdk = 36
         versionCode = 1

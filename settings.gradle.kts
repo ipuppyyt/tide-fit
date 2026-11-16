@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FitOS"
+rootProject.name = "TideFit"
 include(":app")

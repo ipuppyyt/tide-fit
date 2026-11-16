@@ -12,7 +12,7 @@
     </queries>
 
     <application
-        android:name=".FitOsApp"
+        android:name=".TideFitApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
@@ -20,18 +20,18 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FitOS">
+        android:theme="@style/Theme.TideFit">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.FitOS.Splash">
+            android:theme="@style/Theme.TideFit.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Health Connect asks apps to explain why they read data; FITOS' Health Connect screen does that. -->
+            <!-- Health Connect asks apps to explain why they read data; TIDE Fit' Health Connect screen does that. -->
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
