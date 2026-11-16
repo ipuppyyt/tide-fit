@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Stylised "F" bar mark in the accent colour, inside the 66dp safe zone -->
+    <path
+        android:fillColor="#C6F135"
+        android:pathData="M38,32h32v9H48v8h18v9H48v18h-10z" />
+</vector>
