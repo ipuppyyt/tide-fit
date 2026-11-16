@@ -11,15 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import com.artishorizon.tidefit.core.designsystem.components.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
+import com.artishorizon.tidefit.core.designsystem.components.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
+import com.artishorizon.tidefit.core.designsystem.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -225,12 +223,12 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
     }
 
     timeFor?.let { r ->
-        val tp = rememberTimePickerState(r.hour, r.minute, is24Hour = true)
+        var hh by remember(r) { mutableStateOf(r.hour) }; var mm by remember(r) { mutableStateOf(r.minute) }
         AlertDialog(
             onDismissRequest = { timeFor = null },
             title = { Text("${r.kind.label} reminder time") },
-            text = { TimePicker(tp) },
-            confirmButton = { TextButton({ vm.setReminder(r.copy(minutes = tp.hour * 60 + tp.minute)); timeFor = null }) { Text("Save") } },
+            text = { com.artishorizon.tidefit.core.designsystem.components.TimeStepper(hh, mm, { h, m -> hh = h; mm = m }) },
+            confirmButton = { TextButton({ vm.setReminder(r.copy(minutes = hh * 60 + mm)); timeFor = null }) { Text("Save") } },
             dismissButton = { TextButton({ timeFor = null }) { Text("Cancel") } }
         )
     }

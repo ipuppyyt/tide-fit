@@ -19,10 +19,10 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.artishorizon.tidefit.core.designsystem.components.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.artishorizon.tidefit.core.designsystem.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -115,7 +115,7 @@ private fun DaySummary(totals: Nutrition, targets: DailyTargets?, onSetTargets: 
                         if (target != null) "Target $target kcal" else "No calorie target set",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    if (targets == null) TextButton(onSetTargets, contentPadding = PaddingValues(0.dp)) { Text("Set targets") }
+                    if (targets == null) TextButton(onSetTargets) { Text("Set targets") }
                 }
             }
             MacroIndicator("Protein", macroText(totals.protein, targets?.proteinG), progress(totals.protein, targets?.proteinG), colors.protein)

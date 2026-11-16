@@ -115,7 +115,7 @@ fun WorkoutsScreen(
         }
 
         SectionHeader("Routines") {
-            androidx.compose.material3.TextButton({ onEditRoutine(0) }) { Text("New routine") }
+            com.artishorizon.tidefit.core.designsystem.components.TextButton({ onEditRoutine(0) }) { Text("New routine") }
         }
         if (state.routines.isEmpty()) {
             Text("No routines yet. Create one to start a planned workout in one tap.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -131,7 +131,7 @@ fun WorkoutsScreen(
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        androidx.compose.material3.TextButton({ onEditRoutine(r.id) }) { Text("Edit") }
+                        com.artishorizon.tidefit.core.designsystem.components.TextButton({ onEditRoutine(r.id) }) { Text("Edit") }
                     }
                     Text(
                         r.exercises.joinToString(", ") { it.exerciseName },

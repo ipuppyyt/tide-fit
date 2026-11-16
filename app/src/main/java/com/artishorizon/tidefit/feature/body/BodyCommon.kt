@@ -5,14 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
+import com.artishorizon.tidefit.core.designsystem.components.AlertDialog
+import com.artishorizon.tidefit.core.designsystem.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,32 +35,21 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 /** A labelled button that opens a date picker; future dates are not selectable. */
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun DateButton(date: LocalDate, today: LocalDate, onChange: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
     var open by remember { mutableStateOf(false) }
     SecondaryButton(friendlyDate(date, today), { open = true }, modifier)
     if (open) {
-        val state = rememberDatePickerState(
-            initialSelectedDateMillis = date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli(),
-            selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long) =
-                    !Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneOffset.UTC).toLocalDate().isAfter(today)
-            }
-        )
-        DatePickerDialog(
+        var picked by remember { mutableStateOf(date) }
+        AlertDialog(
             onDismissRequest = { open = false },
-            confirmButton = {
-                TextButton({
-                    state.selectedDateMillis?.let { onChange(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
-                    open = false
-                }) { Text("OK") }
-            },
+            text = { com.artishorizon.tidefit.core.designsystem.components.CalendarPicker(picked, today, { picked = it }) },
+            confirmButton = { TextButton({ onChange(picked); open = false }) { Text("OK") } },
             dismissButton = { TextButton({ open = false }) { Text("Cancel") } }
-        ) { DatePicker(state) }
+        )
     }
 }
-
 data class ChartPoint(val date: LocalDate, val value: Double)
 
 data class ChartSeries(val points: List<ChartPoint>, val color: Color, val dotsOnly: Boolean = false)

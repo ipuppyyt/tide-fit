@@ -2,12 +2,17 @@ package com.artishorizon.tidefit.core.designsystem
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import com.artishorizon.tidefit.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// System sans keeps the APK small and respects user font settings; weights and tracking give it character.
-private val Sans = FontFamily.SansSerif
+// Plus Jakarta Sans (SIL OFL), bundled as a variable font so every weight comes from one 170 KB file.
+@OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+private fun jakarta(w: FontWeight) = Font(R.font.plusjakarta, w, variationSettings = FontVariation.Settings(FontVariation.weight(w.weight)))
+private val Sans = FontFamily(listOf(FontWeight.Normal, FontWeight.Medium, FontWeight.SemiBold, FontWeight.Bold, FontWeight.ExtraBold).map { jakarta(it) })
 
 val FitTypography = Typography(
     displayLarge = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Bold, fontSize = 52.sp, lineHeight = 56.sp, letterSpacing = (-1.5).sp),
