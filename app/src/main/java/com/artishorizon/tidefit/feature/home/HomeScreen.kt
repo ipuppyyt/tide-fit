@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -169,6 +171,8 @@ fun HomeScreen(
                 )
                 Text(if (profile != null) "Hello, ${profile.name}" else "Today", style = MaterialTheme.typography.headlineLarge)
             }
+            StreakPill(state.streak)
+            Spacer(Modifier.width(Spacing.sm))
             Box(
                 Modifier.size(48.dp).clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
@@ -185,8 +189,6 @@ fun HomeScreen(
                 else Icon(lucide("user"), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
         }
-
-        StreakCard(state.streak)
 
         // Hero: calories left today.
         HeroCard(onClick = onOpenNutrition) {
@@ -323,27 +325,20 @@ fun HomeScreen(
 }
 
 @Composable
-private fun StreakCard(streak: com.artishorizon.tidefit.domain.calc.Streak) {
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+private fun StreakPill(streak: com.artishorizon.tidefit.domain.calc.Streak) {
     val flame = Color(0xFFFF8A3D)
-    val active = streak.current > 0
+    val lit = streak.todayDone
+    val tint = if (lit) flame else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
-        Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
-            contentDescription = if (active) "${streak.current}-day streak" else "No streak yet"
-        },
-        verticalAlignment = Alignment.CenterVertically
+        Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "${streak.current}-day streak" + if (!lit && streak.current > 0) ", log something today to keep it" else ""
+            },
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(lucide("flame"), contentDescription = null, tint = if (active) flame else muted, modifier = Modifier.size(20.dp))
-        Text(
-            if (active) "${streak.current}-day streak" else "Log something to start a streak",
-            style = MaterialTheme.typography.titleSmall, color = if (active) MaterialTheme.colorScheme.onSurface else muted,
-            modifier = Modifier.padding(start = Spacing.sm).weight(1f)
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            streak.week.forEach { (_, done) ->
-                Box(Modifier.size(8.dp).clip(CircleShape).background(if (done) flame else muted.copy(alpha = 0.25f)))
-            }
-        }
+        Icon(lucide("flame"), contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+        Text(streak.current.toString(), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = tint)
     }
 }
 
