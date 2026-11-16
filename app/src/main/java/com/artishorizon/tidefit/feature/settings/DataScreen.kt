@@ -44,6 +44,9 @@ import com.artishorizon.tidefit.core.designsystem.components.SectionHeader
 import com.artishorizon.tidefit.data.BackupManager
 import com.artishorizon.tidefit.data.health.HealthAvailability
 import com.artishorizon.tidefit.data.health.HealthConnectSource
+import com.artishorizon.tidefit.data.health.HealthSyncScheduler
+import com.artishorizon.tidefit.domain.repository.HealthSyncPrefs
+import com.artishorizon.tidefit.domain.repository.HealthSyncSettings
 import com.artishorizon.tidefit.data.reminders.ReminderScheduler
 import com.artishorizon.tidefit.data.reminders.hasNotificationPermission
 import com.artishorizon.tidefit.domain.model.ReminderSetting
@@ -64,7 +67,9 @@ data class DataUiState(
     val message: String? = null,
     val error: String? = null,
     val healthAvailability: HealthAvailability = HealthAvailability.UNSUPPORTED,
-    val healthPermitted: Boolean = false
+    val healthPermitted: Boolean = false,
+    val healthCanWrite: Boolean = false,
+    val healthBackground: Boolean = false
 )
 
 @HiltViewModel
@@ -72,8 +77,13 @@ class DataViewModel @Inject constructor(
     private val reminderSettings: ReminderSettings,
     private val scheduler: ReminderScheduler,
     private val backup: BackupManager,
-    private val health: HealthConnectSource
+    private val health: HealthConnectSource,
+    private val healthSettings: HealthSyncSettings,
+    private val healthScheduler: HealthSyncScheduler
 ) : ViewModel() {
+    val healthPrefs: StateFlow<HealthSyncPrefs> =
+        healthSettings.observePrefs().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HealthSyncPrefs())
+
     val reminders: StateFlow<List<ReminderSetting>> =
         reminderSettings.observe().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -93,13 +103,29 @@ class DataViewModel @Inject constructor(
     fun refreshHealth() {
         viewModelScope.launch {
             val a = health.availability()
-            _state.update { it.copy(healthAvailability = a, healthPermitted = a == HealthAvailability.AVAILABLE && health.hasPermissions()) }
+            val g = if (a == HealthAvailability.AVAILABLE) health.granted() else emptySet()
+            _state.update { it.copy(healthAvailability = a, healthPermitted = health.canRead(g) || health.canWrite(g), healthCanWrite = health.canWrite(g), healthBackground = health.canReadInBackground(g)) }
         }
     }
 
-    fun importHealth() = run("Importing…") {
-        val r = health.importRecent(30)
-        _state.update { it.copy(message = "Imported ${r.weightsChanged} weigh-in(s) and ${r.nightsAdded} night(s) of sleep. Entries you logged yourself were left alone.") }
+    fun syncHealth() = run("Syncing…") {
+        val r = health.sync()
+        _state.update { it.copy(message = r.summary()) }
+    }
+
+    fun setAutoSync(on: Boolean) {
+        viewModelScope.launch {
+            healthSettings.setAutoSync(on)
+            healthScheduler.apply(on)
+            if (on) health.sync().let { r -> _state.update { it.copy(message = r.summary()) } }
+        }
+    }
+
+    fun setWriteBack(on: Boolean) {
+        viewModelScope.launch {
+            healthSettings.setWriteBack(on)
+            if (on) health.sync().let { r -> _state.update { it.copy(message = r.summary()) } }
+        }
     }
 
     fun createBackup(uri: Uri) = run("Saving backup…") {
@@ -134,6 +160,7 @@ class DataViewModel @Inject constructor(
 fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
     val reminders by vm.reminders.collectAsStateWithLifecycle()
     val state by vm.state.collectAsStateWithLifecycle()
+    val healthPrefs by vm.healthPrefs.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var timeFor by remember { mutableStateOf<ReminderSetting?>(null) }
     var pendingRestore by remember { mutableStateOf<Uri?>(null) }
@@ -193,14 +220,34 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     Text(
-                        "Import weight and sleep that other apps saved to Health Connect. This stays on your device, only reads, and runs when you tap Import. " +
-                            "Anything you logged yourself is never overwritten.",
+                        "Brings in weight, sleep, steps, active calories and exercise time from other apps, and can send your weight, water, meals and workouts back. " +
+                            "Everything stays on your device. Anything you logged yourself is never overwritten.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     when (state.healthAvailability) {
                         HealthAvailability.AVAILABLE ->
-                            if (state.healthPermitted) PrimaryButton("Import last 30 days", vm::importHealth, Modifier.fillMaxWidth(), enabled = !state.busy)
-                            else PrimaryButton("Allow access to weight & sleep", { healthPermission.launch(vm.healthPermissions) }, Modifier.fillMaxWidth())
+                            if (!state.healthPermitted) PrimaryButton("Allow access", { healthPermission.launch(vm.healthPermissions) }, Modifier.fillMaxWidth())
+                            else {
+                                SyncRow("Keep in sync", "Updates in the background about every 6 hours, and when you open the app.", healthPrefs.autoSync, "Keep Health Connect in sync", vm::setAutoSync)
+                                SyncRow(
+                                    "Send my data to Health Connect", "Weight, water, meals and finished workouts from the last 30 days. Deleting one here removes it there too.",
+                                    healthPrefs.writeBack, "Send data to Health Connect"
+                                ) { on -> if (on && !state.healthCanWrite) healthPermission.launch(vm.healthPermissions) else vm.setWriteBack(on) }
+                                if (healthPrefs.autoSync && !state.healthBackground)
+                                    Text(
+                                        "Background reading isn't allowed yet, so new data is imported when you open the app.",
+                                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                healthPrefs.lastSyncAt?.let {
+                                    Text(
+                                        "Last synced ${java.time.format.DateTimeFormatter.ofPattern("d MMM, HH:mm").format(it.atZone(java.time.ZoneId.systemDefault()))}. ${healthPrefs.lastSummary.orEmpty()}",
+                                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                PrimaryButton("Sync now", vm::syncHealth, Modifier.fillMaxWidth(), enabled = !state.busy)
+                                if (!state.healthCanWrite || !state.healthBackground)
+                                    SecondaryButton("Review permissions", { healthPermission.launch(vm.healthPermissions) }, Modifier.fillMaxWidth())
+                            }
                         HealthAvailability.NOT_INSTALLED -> Text("Health Connect isn't installed on this device.")
                         HealthAvailability.UPDATE_REQUIRED -> Text("Health Connect needs an update before TIDE Fit can use it.")
                         HealthAvailability.UNSUPPORTED -> Text("Health Connect isn't supported on this device.")
@@ -247,6 +294,17 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
             confirmButton = { TextButton({ pendingRestore = null; vm.restore(uri) }) { Text("Replace") } },
             dismissButton = { TextButton({ pendingRestore = null }) { Text("Cancel") } }
         )
+    }
+}
+
+@Composable
+private fun SyncRow(title: String, detail: String, checked: Boolean, description: String, onChange: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Switch(checked = checked, onCheckedChange = onChange, modifier = Modifier.semantics { contentDescription = description })
     }
 }
 

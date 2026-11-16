@@ -60,3 +60,13 @@ data class SupplementLogEntity(
     val date: LocalDate,
     val takenAt: Instant
 )
+
+/** One row per local day of activity imported from Health Connect (steps, active energy, exercise time). */
+@Entity(tableName = "activity_day")
+data class ActivityDayEntity(
+    @PrimaryKey val date: LocalDate,
+    val steps: Int,
+    val activeKcal: Int,
+    val exerciseMinutes: Int,
+    val updatedAt: Instant
+)

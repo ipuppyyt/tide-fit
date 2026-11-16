@@ -76,3 +76,12 @@ interface SupplementDao {
     @Query("DELETE FROM supplement_log WHERE supplementId = :supplementId AND date = :date")
     suspend fun deleteLog(supplementId: Long, date: LocalDate)
 }
+
+@Dao
+interface ActivityDayDao {
+    @Query("SELECT * FROM activity_day WHERE date BETWEEN :from AND :to ORDER BY date")
+    fun observeRange(from: LocalDate, to: LocalDate): Flow<List<ActivityDayEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(rows: List<ActivityDayEntity>)
+}

@@ -28,6 +28,8 @@ abstract class RepositoryModule {
     abstract fun appSettings(impl: SettingsRepository): AppSettings
 
     @Binds @Singleton abstract fun reminderSettings(impl: SettingsRepository): com.artishorizon.tidefit.domain.repository.ReminderSettings
+    @Binds @Singleton abstract fun healthSyncSettings(impl: SettingsRepository): com.artishorizon.tidefit.domain.repository.HealthSyncSettings
+    @Binds @Singleton abstract fun activity(impl: com.artishorizon.tidefit.data.ActivityRepositoryImpl): com.artishorizon.tidefit.domain.repository.ActivityRepository
     @Binds @Singleton abstract fun foods(impl: FoodRepositoryImpl): FoodRepository
     @Binds @Singleton abstract fun foodLog(impl: FoodLogRepositoryImpl): FoodLogRepository
     @Binds @Singleton abstract fun water(impl: WaterRepositoryImpl): WaterRepository

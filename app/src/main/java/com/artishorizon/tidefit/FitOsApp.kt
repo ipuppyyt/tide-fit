@@ -3,6 +3,7 @@ package com.artishorizon.tidefit
 import android.app.Application
 import com.artishorizon.tidefit.data.ExerciseSeeder
 import com.artishorizon.tidefit.data.FoodSeeder
+import com.artishorizon.tidefit.data.health.HealthSyncScheduler
 import com.artishorizon.tidefit.data.reminders.ReminderScheduler
 import com.artishorizon.tidefit.data.reminders.ensureReminderChannel
 import com.artishorizon.tidefit.domain.repository.ReminderSettings
@@ -20,6 +21,7 @@ class TideFitApp : Application() {
     @Inject lateinit var exerciseSeeder: ExerciseSeeder
     @Inject lateinit var reminderSettings: ReminderSettings
     @Inject lateinit var reminderScheduler: ReminderScheduler
+    @Inject lateinit var healthSync: HealthSyncScheduler
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -31,5 +33,6 @@ class TideFitApp : Application() {
         appScope.launch { exerciseSeeder.seedIfNeeded() }
         // Make sure every enabled reminder has a pending job (KEEP: don't reset one that is already queued).
         appScope.launch { reminderSettings.observe().first().filter { it.enabled }.forEach { reminderScheduler.apply(it, replace = false) } }
+        healthSync.restore()
     }
 }

@@ -32,6 +32,7 @@ object AppModule {
     @Provides fun exerciseDao(db: AppDatabase) = db.exerciseDao()
     @Provides fun routineDao(db: AppDatabase) = db.routineDao()
     @Provides fun workoutDao(db: AppDatabase) = db.workoutDao()
+    @Provides fun activityDayDao(db: AppDatabase) = db.activityDayDao()
 
     /** Injectable clock so time-dependent logic is testable. */
     @Provides @Singleton

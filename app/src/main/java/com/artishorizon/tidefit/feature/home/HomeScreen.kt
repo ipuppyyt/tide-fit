@@ -88,7 +88,8 @@ data class HomeUiState(
     val totals: Nutrition = Nutrition.ZERO,
     val entryCount: Int = 0,
     val waterMl: Int = 0,
-    val glassMl: Int = 250
+    val glassMl: Int = 250,
+    val activity: com.artishorizon.tidefit.domain.model.ActivityDay? = null
 ) {
     /** Daily completion counts only goals that exist: a missing target is not a failed one. */
     val goals: List<Pair<String, Boolean>>
@@ -106,19 +107,23 @@ class HomeViewModel @Inject constructor(
     profiles: ProfileRepository,
     log: FoodLogRepository,
     private val water: WaterRepository,
+    activityRepo: com.artishorizon.tidefit.domain.repository.ActivityRepository,
     settings: AppSettings,
     private val clock: Clock
 ) : ViewModel() {
     private val today = LocalDate.now(clock)
 
-    val state: StateFlow<HomeUiState> = combine(
+    private val nutrition = combine(
         profiles.observeProfile(), profiles.observeCurrentTargets(), log.observeDay(today), water.observeDay(today), settings.defaultGlassMl
     ) { p, t, entries, drinks, glass ->
         HomeUiState(
             loading = false, profile = p, targets = t, totals = entries.totals(), entryCount = entries.size,
             waterMl = drinks.filter { it.kind == BeverageKind.WATER }.sumOf { it.amountMl }, glassMl = glass
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+    }
+
+    val state: StateFlow<HomeUiState> = combine(nutrition, activityRepo.observeRange(today, today)) { s, act -> s.copy(activity = act.firstOrNull()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun addGlass() {
         viewModelScope.launch { runCatching { water.add(today, state.value.glassMl, BeverageKind.WATER, null) } }
@@ -275,6 +280,19 @@ fun HomeScreen(
             }
         }
 
+        state.activity?.let { a ->
+            FitCard {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                    SectionHeader("Activity") { Text("from Health Connect", style = MaterialTheme.typography.labelLarge, color = muted) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                        ActivityStat("Steps", "%,d".format(Locale.getDefault(), a.steps), Modifier.weight(1f))
+                        ActivityStat("Active kcal", a.activeKcal.toString(), Modifier.weight(1f))
+                        ActivityStat("Exercise", "${a.exerciseMinutes} min", Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+
         if (state.goals.isNotEmpty()) {
             val done = state.goals.count { it.second }
             FitCard {
@@ -297,6 +315,14 @@ fun HomeScreen(
         }
 
         TargetsCard(targets)
+    }
+}
+
+@Composable
+private fun ActivityStat(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
+        Text(value, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

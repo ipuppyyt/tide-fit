@@ -47,3 +47,6 @@ data class Supplement(
 )
 
 data class SupplementLog(val supplementId: Long, val date: LocalDate)
+
+/** Daily movement imported from Health Connect. */
+data class ActivityDay(val date: LocalDate, val steps: Int, val activeKcal: Int, val exerciseMinutes: Int)

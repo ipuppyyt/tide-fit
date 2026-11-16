@@ -37,6 +37,12 @@ class RootViewModel @Inject constructor(settings: AppSettings) : ViewModel() {
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val root: RootViewModel by viewModels()
+    @javax.inject.Inject lateinit var healthSync: com.artishorizon.tidefit.data.health.HealthSyncScheduler
+
+    override fun onStart() {
+        super.onStart()
+        healthSync.syncOnOpen()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()

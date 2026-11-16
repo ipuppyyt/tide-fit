@@ -26,13 +26,14 @@ import androidx.room.TypeConverters
         RecoveryEntryEntity::class,
         SupplementEntity::class,
         SupplementLogEntity::class,
-        CoachingSessionEntity::class
+        CoachingSessionEntity::class,
+        ActivityDayEntity::class
     ],
     version = AppDatabase.VERSION,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3),
-        AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5)
+        AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5), AutoMigration(from = 5, to = 6)
     ]
 )
 @TypeConverters(Converters::class)
@@ -53,11 +54,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recoveryDao(): RecoveryDao
     abstract fun supplementDao(): SupplementDao
     abstract fun coachingDao(): CoachingDao
+    abstract fun activityDayDao(): ActivityDayDao
 
     companion object {
         const val NAME = "tidefit.db"
 
         /** Single source of truth for the schema version (also used to reject backups from newer app versions). */
-        const val VERSION = 5
+        const val VERSION = 6
     }
 }
