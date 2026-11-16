@@ -45,6 +45,18 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".widget.TodayWidget"
+            android:exported="false"
+            android:label="Today">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"

@@ -22,6 +22,7 @@ class TideFitApp : Application() {
     @Inject lateinit var reminderSettings: ReminderSettings
     @Inject lateinit var reminderScheduler: ReminderScheduler
     @Inject lateinit var healthSync: HealthSyncScheduler
+    @Inject lateinit var widgetRefresher: com.artishorizon.tidefit.widget.WidgetRefresher
     @Inject lateinit var streakMilestones: com.artishorizon.tidefit.data.reminders.StreakMilestones
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -35,6 +36,7 @@ class TideFitApp : Application() {
         // Make sure every enabled reminder has a pending job (KEEP: don't reset one that is already queued).
         appScope.launch { reminderSettings.observe().first().filter { it.enabled }.forEach { reminderScheduler.apply(it, replace = false) } }
         healthSync.restore()
+        widgetRefresher.start(appScope)
         streakMilestones.start(appScope)
     }
 }

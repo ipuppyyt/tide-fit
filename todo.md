@@ -3,7 +3,7 @@
 Everything stays offline and private. Nothing here needs an account or a server.
 
 ## Next up
-- [ ] Home screen widgets: calories left, water +250 ml, streak count
+- [x] Home screen widget: calories left, water +250 ml, streak count (more sizes and a streak-only widget still open)
 - [ ] Quick-log actions on notifications (e.g. "+250 ml" on the water reminder, "Log breakfast")
 
 ## Quick wins

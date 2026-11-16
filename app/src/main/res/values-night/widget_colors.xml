@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_bg">#FF1C1D22</color>
+    <color name="widget_text">#FFF3F4F6</color>
+    <color name="widget_muted">#FF9CA3AF</color>
+    <color name="widget_chip">#FF2C2E35</color>
+    <color name="widget_flame">#FFFF9A55</color>
+    <color name="widget_water">#FF4FB3EA</color>
+</resources>
