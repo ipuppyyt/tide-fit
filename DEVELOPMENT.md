@@ -101,3 +101,9 @@ gradlew assembleDebug testDebugUnitTest
 - Icons: [Lucide](https://lucide.dev) (ISC licence), SVGs in `app/src/main/assets/icons`, drawn at runtime by `Lucide.kt`.
 - Typeface: Plus Jakarta Sans (SIL OFL 1.1), `res/font/plusjakarta.ttf`.
 - Photos: six free-to-use Unsplash photos in `res/drawable-nodpi/photo_*.jpg` (Unsplash licence, no attribution required).
+
+## Calorie limits and body metrics
+- `CalorieLimits` turns the calorie target into a rule per goal: **cut = daily maximum** (with a sex-based safety floor of 1200/1500 kcal, 1350 if unspecified), **bulk = daily minimum** (with a ceiling at maintenance +20%), **maintenance/recomp = target ±5%**. Home, Nutrition and Body metrics show it.
+- Target calories are capped so the expected change stays within ~1%/week loss or ~0.5%/week gain of body weight (11 and 5.5 kcal/day per kg).
+- `BodyMetrics`: BMI (WHO bands), healthy weight range, waist/height, waist/hip, US Navy body-fat estimate, lean/fat mass. All derived; nothing new is stored (no DB migration).
+- Basis: Helms, Aragon, Fitschen 2014 (JISSN, PMC4033492) for 0.5-1%/week loss. The bulk surplus and 0.25-0.5%/week gain figures are from general sports-nutrition guidance and were not confirmed against a primary source here. Not medical advice.

@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +58,7 @@ import com.artishorizon.tidefit.core.util.oneDecimal
 import com.artishorizon.tidefit.core.util.rounded
 import com.artishorizon.tidefit.core.util.totals
 import com.artishorizon.tidefit.domain.calc.Units
+import com.artishorizon.tidefit.domain.calc.calorieLimitsFor
 import com.artishorizon.tidefit.domain.model.BeverageKind
 import com.artishorizon.tidefit.domain.model.DailyTargets
 import com.artishorizon.tidefit.domain.model.Nutrition
@@ -177,14 +179,24 @@ fun HomeScreen(
                     Text("Set daily targets in Nutrition to see how much is left.", style = MaterialTheme.typography.bodyMedium)
                 }
             } else {
-                val remaining = targets.caloriesKcal - state.totals.calories.toInt()
+                val eaten = state.totals.calories.toInt()
+                val limits = remember(profile, targets.caloriesKcal) { profile?.let { calorieLimitsFor(it, targets.caloriesKcal) } }
                 val ink = c.onHero
+                val big = when (limits?.kind) {
+                    com.artishorizon.tidefit.domain.calc.LimitKind.FLOOR -> kotlin.math.max(0, limits.low - eaten)
+                    com.artishorizon.tidefit.domain.calc.LimitKind.RANGE -> kotlin.math.abs(targets.caloriesKcal - eaten)
+                    else -> kotlin.math.abs((limits?.high ?: targets.caloriesKcal) - eaten)
+                }
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.lg)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-                            Text(if (remaining >= 0) "Calories left" else "Calories over", style = MaterialTheme.typography.labelLarge)
-                            Text(kotlin.math.abs(remaining).toString(), style = MaterialTheme.typography.displayLarge)
-                            Text("${state.totals.calories.rounded()} of ${targets.caloriesKcal} kcal eaten", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                (limits?.kind?.label ?: "Calories") + " · " + (limits?.let { if (it.kind == com.artishorizon.tidefit.domain.calc.LimitKind.FLOOR) it.low else it.high } ?: targets.caloriesKcal) + " kcal",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                            Text(big.toString(), style = MaterialTheme.typography.displayLarge)
+                            Text(limits?.headline(eaten) ?: "$eaten kcal eaten", style = MaterialTheme.typography.titleSmall)
+                            Text("${state.totals.calories.rounded()} kcal eaten", style = MaterialTheme.typography.bodyMedium)
                         }
                         ProgressRing(
                             (state.totals.calories / targets.caloriesKcal).toFloat(), size = 96.dp, stroke = 12.dp,

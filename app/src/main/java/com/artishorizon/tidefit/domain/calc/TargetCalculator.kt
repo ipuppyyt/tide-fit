@@ -6,6 +6,7 @@ import com.artishorizon.tidefit.domain.model.DailyTargets
 import com.artishorizon.tidefit.domain.model.FitnessGoalType
 import com.artishorizon.tidefit.domain.model.ValueSource
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 data class TargetInput(
@@ -22,7 +23,9 @@ data class TargetSuggestion(
     val tdee: Int,
     val targets: DailyTargets,
     /** Human-readable explanation of each step so the user can see exactly where numbers came from. */
-    val explanation: List<String>
+    val explanation: List<String>,
+    /** The ceiling / floor / range rule that goes with these targets. */
+    val limits: CalorieLimits
 )
 
 /**
@@ -61,8 +64,16 @@ object TargetCalculator {
         val bmr = bmr(input)
         val tdee = bmr * input.activityLevel.factor
         val adjustment = calorieAdjustment(input.goal)
-        val floor = MIN_CALORIES
-        val calories = max(floor.toDouble(), tdee * (1 + adjustment)).roundToInt()
+        val floor = CalorieLimits.safetyFloor(input.sex, bmr)
+        // Cap the daily change so the expected rate stays within ~1 %/week loss or ~0.5 %/week gain of body weight.
+        val raw = tdee * (1 + adjustment)
+        val capped = when (input.goal) {
+            FitnessGoalType.FAT_LOSS -> max(raw, tdee - 11.0 * input.weightKg)
+            FitnessGoalType.MUSCLE_BUILDING -> min(raw, tdee + 5.5 * input.weightKg)
+            else -> raw
+        }
+        val calories = max(floor.toDouble(), capped).roundToInt()
+        val limits = CalorieLimits.forGoal(input.goal, calories, tdee.roundToInt(), floor)
 
         val protein = (proteinPerKg(input.goal) * input.weightKg).roundToInt()
         // Fat: 25% of calories, but never below 0.6 g/kg for hormonal health.
@@ -83,7 +94,9 @@ object TargetCalculator {
                     else -> "No calorie adjustment for ${input.goal.label.lowercase()}."
                 }
             )
-            if (tdee * (1 + adjustment) < floor) add("Calories raised to a $floor kcal minimum.")
+            if (capped < floor) add("Calories raised to a $floor kcal safety minimum.")
+            else if (capped != raw) add("Adjustment limited so weight changes by no more than about ${if (input.goal == FitnessGoalType.FAT_LOSS) "1" else "0.5"}% of body weight per week.")
+            add(limits.ruleText + ".")
             add("Protein ${proteinPerKg(input.goal)} g per kg body weight.")
             add("Fat 25% of calories (at least 0.6 g/kg); carbohydrates fill the remainder.")
             add("Fibre 14 g per 1000 kcal; water 35 ml per kg.")
@@ -102,7 +115,8 @@ object TargetCalculator {
                 waterMl = water,
                 source = ValueSource.FORMULA_ESTIMATE
             ),
-            explanation = explanation
+            explanation = explanation,
+            limits = limits
         )
     }
 

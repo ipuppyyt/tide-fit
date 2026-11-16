@@ -82,7 +82,7 @@ fun NutritionScreen(
                 }
             }
         }
-        item(key = "summary") { DaySummary(state.totals, state.targets, onSetTargets) }
+        item(key = "summary") { DaySummary(state.totals, state.targets, state.limits, onSetTargets) }
         item(key = "water") { WaterCard(state.waterMl, state.targets?.waterMl, onOpenWater) }
         Meal.entries.forEach { meal ->
             val entries = state.entriesByMeal[meal].orEmpty()
@@ -97,7 +97,7 @@ fun NutritionScreen(
 }
 
 @Composable
-private fun DaySummary(totals: Nutrition, targets: DailyTargets?, onSetTargets: () -> Unit) {
+private fun DaySummary(totals: Nutrition, targets: DailyTargets?, limits: com.artishorizon.tidefit.domain.calc.CalorieLimits?, onSetTargets: () -> Unit) {
     val colors = FitTheme.colors
     FitCard {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
@@ -106,9 +106,14 @@ private fun DaySummary(totals: Nutrition, targets: DailyTargets?, onSetTargets: 
                 ProgressRing(progress = if (target != null && target > 0) (totals.calories / target).toFloat() else 0f, size = 112.dp) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (target != null) {
-                            val remaining = target - totals.calories
-                            Text(kotlin.math.abs(remaining).rounded(), style = MaterialTheme.typography.titleLarge)
-                            Text(if (remaining >= 0) "left" else "over", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val eaten = totals.calories.toInt()
+                            val (num, word) = when (limits?.kind) {
+                                com.artishorizon.tidefit.domain.calc.LimitKind.FLOOR -> if (eaten < limits.low) (limits.low - eaten) to "to min" else 0 to "min met"
+                                com.artishorizon.tidefit.domain.calc.LimitKind.CEILING -> if (eaten <= limits.high) (limits.high - eaten) to "left" else (eaten - limits.high) to "over max"
+                                else -> kotlin.math.abs(target - eaten) to (if (target >= eaten) "left" else "over")
+                            }
+                            Text(num.toString(), style = MaterialTheme.typography.titleLarge)
+                            Text(word, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             Text(totals.calories.rounded(), style = MaterialTheme.typography.titleLarge)
                             Text("kcal", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -118,9 +123,18 @@ private fun DaySummary(totals: Nutrition, targets: DailyTargets?, onSetTargets: 
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                     Text("${totals.calories.rounded()} kcal eaten", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        if (target != null) "Target $target kcal" else "No calorie target set",
+                        limits?.ruleText ?: if (target != null) "Target $target kcal" else "No calorie target set",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (limits != null) {
+                        val st = limits.status(totals.calories.toInt())
+                        val bad = st == com.artishorizon.tidefit.domain.calc.LimitStatus.OVER && limits.kind != com.artishorizon.tidefit.domain.calc.LimitKind.FLOOR ||
+                            st == com.artishorizon.tidefit.domain.calc.LimitStatus.OVER
+                        Text(
+                            limits.headline(totals.calories.toInt()), style = MaterialTheme.typography.labelLarge,
+                            color = if (bad) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        )
+                    }
                     if (targets == null) TextButton(onSetTargets) { Text("Set targets") }
                 }
             }

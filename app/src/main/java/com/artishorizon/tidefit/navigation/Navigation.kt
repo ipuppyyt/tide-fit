@@ -79,6 +79,7 @@ import kotlinx.serialization.Serializable
 @Serializable data object TargetsEditRoute
 @Serializable data object WeightRoute
 @Serializable data object MeasurementsRoute
+@Serializable data object BodyMetricsRoute
 @Serializable data object SleepRoute
 @Serializable data object RecoveryRoute
 @Serializable data object SupplementsRoute
@@ -208,6 +209,7 @@ fun MainNavigation() {
                     contentPadding = content,
                     onOpenWeight = { nav.navigate(WeightRoute) },
                     onOpenMeasurements = { nav.navigate(MeasurementsRoute) },
+                    onOpenMetrics = { nav.navigate(BodyMetricsRoute) },
                     onOpenSleep = { nav.navigate(SleepRoute) },
                     onOpenRecovery = { nav.navigate(RecoveryRoute) },
                     onOpenSupplements = { nav.navigate(SupplementsRoute) },
@@ -218,6 +220,7 @@ fun MainNavigation() {
             composable<CoachRoute> { CoachScreen(onBack = { nav.popBackStack() }, onOpenHistory = { nav.navigate(CoachHistoryRoute) }) }
             composable<CoachHistoryRoute> { CoachHistoryScreen(onBack = { nav.popBackStack() }) }
             composable<WeightRoute> { WeightScreen(onBack = { nav.popBackStack() }) }
+            composable<BodyMetricsRoute> { com.artishorizon.tidefit.feature.body.BodyMetricsScreen(onBack = { nav.popBackStack() }) }
             composable<MeasurementsRoute> { MeasurementsScreen(onBack = { nav.popBackStack() }) }
             composable<SleepRoute> { SleepScreen(onBack = { nav.popBackStack() }) }
             composable<RecoveryRoute> { RecoveryScreen(onBack = { nav.popBackStack() }) }

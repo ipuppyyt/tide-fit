@@ -31,7 +31,8 @@ data class NutritionUiState(
     val entriesByMeal: Map<Meal, List<FoodEntry>> = emptyMap(),
     val totals: Nutrition = Nutrition.ZERO,
     val targets: DailyTargets? = null,
-    val waterMl: Int = 0
+    val waterMl: Int = 0,
+    val limits: com.artishorizon.tidefit.domain.calc.CalorieLimits? = null
 ) {
     val isToday get() = day == today
     val isEmpty get() = entriesByMeal.values.all { it.isEmpty() }
@@ -51,7 +52,7 @@ class NutritionViewModel @Inject constructor(
 
     val state: StateFlow<NutritionUiState> = dayEpoch.flatMapLatest { epoch ->
         val day = LocalDate.ofEpochDay(epoch)
-        combine(log.observeDay(day), water.observeDay(day), profiles.observeCurrentTargets()) { entries, waterEntries, targets ->
+        combine(log.observeDay(day), water.observeDay(day), profiles.observeCurrentTargets(), profiles.observeProfile()) { entries, waterEntries, targets, profile ->
             NutritionUiState(
                 loading = false,
                 day = day,
@@ -59,6 +60,7 @@ class NutritionViewModel @Inject constructor(
                 entriesByMeal = Meal.entries.associateWith { m -> entries.filter { it.meal == m } },
                 totals = entries.totals(),
                 targets = targets,
+                limits = if (profile != null && targets != null) com.artishorizon.tidefit.domain.calc.calorieLimitsFor(profile, targets.caloriesKcal) else null,
                 waterMl = waterEntries.filter { it.kind == BeverageKind.WATER }.sumOf { it.amountMl }
             )
         }

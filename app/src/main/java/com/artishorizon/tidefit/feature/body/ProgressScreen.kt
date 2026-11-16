@@ -151,6 +151,7 @@ fun ProgressScreen(
     contentPadding: PaddingValues,
     onOpenWeight: () -> Unit,
     onOpenMeasurements: () -> Unit,
+    onOpenMetrics: () -> Unit,
     onOpenSleep: () -> Unit,
     onOpenRecovery: () -> Unit,
     onOpenSupplements: () -> Unit,
@@ -188,6 +189,7 @@ fun ProgressScreen(
         )
 
         SectionHeader("Body")
+        AreaTile("Body metrics", lucide("target"), c.fibre, ProgressCardData("BMI, BMR, body fat", "Height, weight range, calorie limit and composition"), onOpenMetrics, Modifier.fillMaxWidth())
         TileRow {
             AreaTile("Weight", lucide("scale"), c.water, state.weight, onOpenWeight, Modifier.weight(1f))
             AreaTile("Measurements", lucide("ruler"), c.carbs, state.measurements, onOpenMeasurements, Modifier.weight(1f))
