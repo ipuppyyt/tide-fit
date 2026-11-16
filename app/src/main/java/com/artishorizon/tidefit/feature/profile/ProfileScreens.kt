@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -363,7 +362,7 @@ private fun ThemeCard(mode: ThemeMode, onMode: (ThemeMode) -> Unit, dynamic: Boo
                     val (icon, bg, fg) = when (m.label) {
                         "Dark" -> Triple("moon", Color(0xFF14171C), Color.White)
                         "Light" -> Triple("sun", Color(0xFFF4F5F0), Color(0xFF14171C))
-                        else -> Triple("sliders-horizontal", Brush.linearGradient(listOf(Color(0xFF14171C), Color(0xFFF4F5F0))), Color(0xFF8A8F98))
+                        else -> Triple("sliders-horizontal", Brush.horizontalGradient(0f to Color(0xFF14171C), 0.5f to Color(0xFF14171C), 0.5f to Color(0xFFF4F5F0), 1f to Color(0xFFF4F5F0)), Color(0xFFE05A6B))
                     }
                     Column(
                         Modifier.weight(1f).clip(RoundedCornerShape(18.dp))
@@ -427,12 +426,7 @@ fun ProfileEditScreen(onDone: () -> Unit, viewModel: ProfileEditViewModel = hilt
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Edit profile") },
-                navigationIcon = {
-                    IconButton(onDone) { Icon(lucide("arrow-left"), contentDescription = "Back") }
-                }
-            )
+            FitTopBar("Edit profile", onDone)
         }
     ) { padding ->
         if (state.loading) { LoadingState(Modifier.padding(padding)); return@Scaffold }

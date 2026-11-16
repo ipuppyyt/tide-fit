@@ -118,12 +118,12 @@ private fun PillButton(
             .clip(Radii.pill)
             .background(container.copy(alpha = container.alpha * alpha))
             .let { if (borderColor != null) it.border(Sizes.borderThin, borderColor, Radii.pill) else it }
-            .padding(horizontal = Spacing.xl),
+            .padding(horizontal = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = contentColor.copy(alpha = alpha), textAlign = TextAlign.Center
+            color = contentColor.copy(alpha = if (enabled) 1f else 0.6f), textAlign = TextAlign.Center, maxLines = 1
         )
     }
 }
@@ -339,7 +339,8 @@ fun EmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.sm)
     ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(40.dp))
+        IconBadge(icon, MaterialTheme.colorScheme.primary, size = 76.dp)
+        Spacer(Modifier.height(Spacing.xs))
         Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         if (actionLabel != null && onAction != null) {

@@ -15,6 +15,7 @@ import com.artishorizon.tidefit.core.designsystem.components.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.unit.dp
 import com.artishorizon.tidefit.core.designsystem.components.Switch
 import androidx.compose.material3.Text
 import com.artishorizon.tidefit.core.designsystem.components.TextButton
@@ -150,7 +151,7 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
     val createDoc = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let(vm::createBackup) }
     val openDoc = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingRestore = uri }
 
-    Scaffold(topBar = { FitTopBar("Data, reminders & backup", onBack) }) { padding ->
+    Scaffold(topBar = { FitTopBar("Data & backup", onBack) }) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
                 .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.sm),
@@ -159,7 +160,7 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
             state.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
-            SectionHeader("Reminders")
+            IconHeader("bell", "Reminders", androidx.compose.ui.graphics.Color(0xFFFFB84D))
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                     Text(
@@ -188,7 +189,7 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
                 }
             }
 
-            SectionHeader("Health Connect")
+            IconHeader("activity", "Health Connect", androidx.compose.ui.graphics.Color(0xFFFF6B6B))
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     Text(
@@ -207,7 +208,7 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
                 }
             }
 
-            SectionHeader("Backup & restore")
+            IconHeader("layers", "Backup & restore", MaterialTheme.colorScheme.primary)
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     Text(
@@ -246,5 +247,13 @@ fun DataScreen(onBack: () -> Unit, vm: DataViewModel = hiltViewModel()) {
             confirmButton = { TextButton({ pendingRestore = null; vm.restore(uri) }) { Text("Replace") } },
             dismissButton = { TextButton({ pendingRestore = null }) { Text("Cancel") } }
         )
+    }
+}
+
+@Composable
+private fun IconHeader(icon: String, title: String, tint: androidx.compose.ui.graphics.Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+        com.artishorizon.tidefit.core.designsystem.components.IconBadge(com.artishorizon.tidefit.core.designsystem.components.lucide(icon), tint, size = 36.dp)
+        Text(title, style = MaterialTheme.typography.titleMedium)
     }
 }

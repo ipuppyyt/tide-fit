@@ -104,7 +104,7 @@ fun StatsScreen(onBack: () -> Unit, vm: StatsViewModel = hiltViewModel()) {
             verticalArrangement = Arrangement.spacedBy(Spacing.lg)
         ) {
             if (state.totalWorkouts == 0) {
-                Text("Nothing to show yet. Finish a workout and your stats appear here.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                com.artishorizon.tidefit.core.designsystem.components.EmptyState(com.artishorizon.tidefit.core.designsystem.components.lucide("chart-no-axes-combined"), "No stats yet", "Finish a workout and your volume, sets and personal records appear here.")
                 return@Column
             }
             val thisWeek = state.weeks.lastOrNull()
