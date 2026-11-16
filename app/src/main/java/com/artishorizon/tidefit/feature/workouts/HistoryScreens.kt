@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.workouts
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -73,7 +74,7 @@ fun HistoryScreen(onBack: () -> Unit, onOpen: (Long) -> Unit, vm: HistoryViewMod
     Scaffold(topBar = { FitTopBar("History", onBack) }) { padding ->
         when {
             state.loading -> LoadingState(Modifier.padding(padding))
-            state.items.isEmpty() -> EmptyState(Icons.Default.History, "No workouts yet", "Finished workouts are listed here.", Modifier.padding(padding))
+            state.items.isEmpty() -> EmptyState(lucide("clock"), "No workouts yet", "Finished workouts are listed here.", Modifier.padding(padding))
             else -> LazyColumn(
                 Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(horizontal = Spacing.screenHorizontal, vertical = Spacing.sm),
@@ -135,13 +136,13 @@ fun WorkoutDetailScreen(onBack: () -> Unit, vm: WorkoutDetailViewModel = hiltVie
 
     Scaffold(topBar = {
         FitTopBar(state.workout?.name ?: "Workout", onBack) {
-            if (state.workout != null) IconButton({ confirmDelete = true }) { Icon(Icons.Default.Delete, contentDescription = "Delete workout") }
+            if (state.workout != null) IconButton({ confirmDelete = true }) { Icon(lucide("trash"), contentDescription = "Delete workout") }
         }
     }) { padding ->
         val w = state.workout
         when {
             state.loading -> LoadingState(Modifier.padding(padding))
-            w == null -> EmptyState(Icons.Default.History, "Not found", "This workout no longer exists.", Modifier.padding(padding))
+            w == null -> EmptyState(lucide("clock"), "Not found", "This workout no longer exists.", Modifier.padding(padding))
             else -> LazyColumn(
                 Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(horizontal = Spacing.screenHorizontal, vertical = Spacing.sm),

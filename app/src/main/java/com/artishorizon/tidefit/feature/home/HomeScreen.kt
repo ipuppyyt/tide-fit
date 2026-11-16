@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.home
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -188,7 +189,7 @@ fun HomeScreen(
                         ProgressRing(
                             (state.totals.calories / targets.caloriesKcal).toFloat(), size = 96.dp, stroke = 12.dp,
                             color = ink, track = ink.copy(alpha = 0.16f)
-                        ) { Icon(Icons.Outlined.Restaurant, contentDescription = null, tint = ink, modifier = Modifier.size(28.dp)) }
+                        ) { Icon(lucide("utensils"), contentDescription = null, tint = ink, modifier = Modifier.size(28.dp)) }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
                         HeroMacro("Protein", state.totals.protein.rounded(), targets.proteinG, Modifier.weight(1f))
@@ -201,10 +202,10 @@ fun HomeScreen(
 
         // Quick actions.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            QuickTile(Icons.Outlined.Restaurant, "Add food", onAddFood, Modifier.weight(1f))
-            QuickTile(Icons.Outlined.WaterDrop, "Water", onOpenWater, Modifier.weight(1f))
-            QuickTile(Icons.Outlined.FitnessCenter, "Workout", onOpenWorkouts, Modifier.weight(1f))
-            QuickTile(Icons.Outlined.MonitorWeight, "Weigh in", onOpenWeight, Modifier.weight(1f))
+            QuickTile(lucide("utensils"), "Add food", onAddFood, Modifier.weight(1f))
+            QuickTile(lucide("droplet"), "Water", onOpenWater, Modifier.weight(1f))
+            QuickTile(lucide("dumbbell"), "Workout", onOpenWorkouts, Modifier.weight(1f))
+            QuickTile(lucide("scale"), "Weigh in", onOpenWeight, Modifier.weight(1f))
         }
 
         // Hydration and weight side by side.
@@ -265,7 +266,7 @@ fun HomeScreen(
                                     .background(if (ok) MaterialTheme.colorScheme.primary else Color.Transparent)
                                     .border(1.5.dp, if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, CircleShape),
                                 contentAlignment = Alignment.Center
-                            ) { if (ok) Icon(Icons.Filled.Check, contentDescription = "Done", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp)) }
+                            ) { if (ok) Icon(lucide("check"), contentDescription = "Done", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp)) }
                             Text(label, style = MaterialTheme.typography.bodyLarge, color = if (ok) MaterialTheme.colorScheme.onSurface else muted)
                         }
                     }

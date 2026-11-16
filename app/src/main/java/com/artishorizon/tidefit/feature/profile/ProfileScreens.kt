@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.profile
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -175,7 +176,7 @@ fun ProfileEditScreen(onDone: () -> Unit, viewModel: ProfileEditViewModel = hilt
             TopAppBar(
                 title = { Text("Edit profile") },
                 navigationIcon = {
-                    IconButton(onDone) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                    IconButton(onDone) { Icon(lucide("arrow-left"), contentDescription = "Back") }
                 }
             )
         }

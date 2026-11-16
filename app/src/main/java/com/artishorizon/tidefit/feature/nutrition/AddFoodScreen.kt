@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -91,7 +92,7 @@ fun AddFoodScreen(
             if (state.foods.isEmpty()) {
                 item(key = "empty") {
                     EmptyState(
-                        Icons.Default.Add,
+                        lucide("plus"),
                         title = when (state.tab) {
                             FoodTab.ALL -> "No foods match"
                             FoodTab.RECENT -> "Nothing logged yet"
@@ -137,12 +138,12 @@ private fun FoodRow(food: Food, onClick: () -> Unit, onQuickAdd: () -> Unit, onF
             }
             IconButton(onFavourite) {
                 Icon(
-                    if (food.isFavourite) Icons.Default.Star else Icons.Default.StarBorder,
+                    if (food.isFavourite) lucide("star") else lucide("star"),
                     contentDescription = if (food.isFavourite) "Remove favourite" else "Add favourite",
                     tint = if (food.isFavourite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onQuickAdd) { Icon(Icons.Default.Add, contentDescription = "Add one serving of ${food.name}", tint = MaterialTheme.colorScheme.primary) }
+            IconButton(onQuickAdd) { Icon(lucide("plus"), contentDescription = "Add one serving of ${food.name}", tint = MaterialTheme.colorScheme.primary) }
         }
     }
 }

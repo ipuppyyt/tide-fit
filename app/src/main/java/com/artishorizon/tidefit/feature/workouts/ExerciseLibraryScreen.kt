@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.workouts
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,7 +44,7 @@ fun ExerciseLibraryScreen(onBack: () -> Unit, vm: ExerciseLibraryViewModel = hil
 
     Scaffold(topBar = {
         FitTopBar("Exercises", onBack) {
-            IconButton({ creating = true }) { Icon(Icons.Default.Add, contentDescription = "New exercise") }
+            IconButton({ creating = true }) { Icon(lucide("plus"), contentDescription = "New exercise") }
         }
     }) { padding ->
         LazyColumn(
@@ -54,7 +55,7 @@ fun ExerciseLibraryScreen(onBack: () -> Unit, vm: ExerciseLibraryViewModel = hil
             item { FitTextField(query, vm::setQuery, "Search exercises") }
             item { MuscleFilter(muscle, vm::setMuscle) }
             if (results.isEmpty()) {
-                item { EmptyState(Icons.Default.FitnessCenter, "No exercises", "Try a different search or create your own.") }
+                item { EmptyState(lucide("dumbbell"), "No exercises", "Try a different search or create your own.") }
             }
             items(results, key = { it.id }) { e ->
                 FitCard(onClick = { editing = e }) {

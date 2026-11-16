@@ -42,7 +42,7 @@ fun FitTopBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, 
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .border(Sizes.borderThin, FitTheme.colors.border, CircleShape),
             contentAlignment = Alignment.Center
-        ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", modifier = Modifier.size(22.dp)) }
+        ) { Icon(lucide("arrow-left"), contentDescription = "Back", modifier = Modifier.size(22.dp)) }
         Text(
             title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(horizontal = Spacing.md)

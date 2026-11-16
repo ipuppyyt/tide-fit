@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -197,7 +198,7 @@ fun WaterScreen(onBack: () -> Unit, viewModel: WaterViewModel = hiltViewModel())
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        IconButton({ viewModel.delete(e.id) }) { Icon(Icons.Default.Delete, contentDescription = "Delete ${e.amountMl} ml entry") }
+                        IconButton({ viewModel.delete(e.id) }) { Icon(lucide("trash"), contentDescription = "Delete ${e.amountMl} ml entry") }
                     }
                 }
             }

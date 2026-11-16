@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -190,7 +191,7 @@ fun RecipeEditorScreen(onBack: () -> Unit, viewModel: RecipeEditorViewModel = hi
                     Column(Modifier.weight(1f).padding(top = Spacing.md)) { Text(row.name, style = MaterialTheme.typography.titleSmall) }
                     FitTextField(row.gramsText, { viewModel.setGrams(i, it) }, "Amount", Modifier.weight(0.7f), KeyboardType.Decimal, "g",
                         error = if (row.gramsText.parseDecimal()?.let { it > 0 } != true) "> 0" else null)
-                    IconButton({ viewModel.remove(i) }) { Icon(Icons.Default.Close, contentDescription = "Remove ${row.name}") }
+                    IconButton({ viewModel.remove(i) }) { Icon(lucide("x"), contentDescription = "Remove ${row.name}") }
                 }
             }
             SecondaryButton("Add ingredient", { picking = true }, Modifier.fillMaxWidth())

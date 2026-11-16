@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -73,6 +74,9 @@ fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel()) {
             label = "onboarding-step"
         ) { step ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                val photos = listOf(com.artishorizon.tidefit.R.drawable.photo_gym, com.artishorizon.tidefit.R.drawable.photo_core, com.artishorizon.tidefit.R.drawable.photo_barbell, com.artishorizon.tidefit.R.drawable.photo_yoga, com.artishorizon.tidefit.R.drawable.photo_salad, com.artishorizon.tidefit.R.drawable.photo_bowl, com.artishorizon.tidefit.R.drawable.photo_yoga)
+                com.artishorizon.tidefit.core.designsystem.components.PhotoCard(photos[step.ordinal % photos.size], height = 150.dp) {}
+                Spacer(Modifier.height(Spacing.lg))
                 Text(step.title, style = MaterialTheme.typography.headlineLarge)
                 Text(step.subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(Spacing.xl))

@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -107,7 +108,7 @@ fun FoodEditorScreen(onBack: () -> Unit, viewModel: FoodEditorViewModel = hiltVi
 
     Scaffold(topBar = {
         FitTopBar(if (state.isEdit) "Edit food" else "New food", onBack) {
-            if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(Icons.Default.Delete, contentDescription = "Delete food") }
+            if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(lucide("trash"), contentDescription = "Delete food") }
         }
     }) { padding ->
         if (state.loading) { LoadingState(Modifier.padding(padding)); return@Scaffold }

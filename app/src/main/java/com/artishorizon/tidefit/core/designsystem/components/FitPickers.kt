@@ -43,13 +43,13 @@ fun CalendarPicker(selected: LocalDate, maxDate: LocalDate, onSelect: (LocalDate
     var month by remember { mutableStateOf(YearMonth.from(selected)) }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            IconButton({ month = month.minusMonths(1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Previous month") }
+            IconButton({ month = month.minusMonths(1) }) { Icon(lucide("chevron-left"), "Previous month") }
             Text(
                 "${month.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${month.year}",
                 Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center
             )
             IconButton({ month = month.plusMonths(1) }, enabled = month.isBefore(YearMonth.from(maxDate))) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Next month")
+                Icon(lucide("chevron-right"), "Next month")
             }
         }
         val first = DayOfWeek.MONDAY
@@ -110,12 +110,12 @@ fun TimeStepper(hour: Int, minute: Int, onChange: (hour: Int, minute: Int) -> Un
 @Composable
 private fun StepColumn(label: String, value: Int, range: Int, step: Int, onChange: (Int) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton({ onChange((value + step) % range) }) { Icon(Icons.Filled.KeyboardArrowUp, "Increase $label") }
+        IconButton({ onChange((value + step) % range) }) { Icon(lucide("chevron-up"), "Increase $label") }
         Box(
             Modifier.size(width = 92.dp, height = 84.dp).clip(com.artishorizon.tidefit.core.designsystem.Radii.lg)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center
         ) { Text("%02d".format(value), style = MaterialTheme.typography.displayMedium) }
-        IconButton({ onChange((value - step + range) % range) }) { Icon(Icons.Filled.KeyboardArrowDown, "Decrease $label") }
+        IconButton({ onChange((value - step + range) % range) }) { Icon(lucide("chevron-down"), "Decrease $label") }
     }
 }

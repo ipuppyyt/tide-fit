@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,15 +65,20 @@ fun NutritionScreen(
     ) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Text("Nutrition", style = MaterialTheme.typography.headlineLarge)
+                com.artishorizon.tidefit.core.designsystem.components.PhotoCard(com.artishorizon.tidefit.R.drawable.photo_bowl, height = 170.dp) {
+                    Column {
+                        Text("Fuel", style = MaterialTheme.typography.bodyMedium)
+                        Text("Nutrition", style = MaterialTheme.typography.headlineLarge)
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(viewModel::previousDay) { Icon(Icons.Default.ChevronLeft, contentDescription = "Previous day") }
+                    IconButton(viewModel::previousDay) { Icon(lucide("chevron-left"), contentDescription = "Previous day") }
                     Text(
                         state.day.friendly(state.today),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.clickable(onClick = viewModel::goToToday).padding(Spacing.sm)
                     )
-                    IconButton(viewModel::nextDay) { Icon(Icons.Default.ChevronRight, contentDescription = "Next day") }
+                    IconButton(viewModel::nextDay) { Icon(lucide("chevron-right"), contentDescription = "Next day") }
                 }
             }
         }
@@ -133,7 +139,7 @@ private fun progress(value: Double, target: Int?) = if (target != null && target
 private fun WaterCard(waterMl: Int, targetMl: Int?, onClick: () -> Unit) {
     FitCard(onClick = onClick) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            Icon(Icons.Default.WaterDrop, contentDescription = null, tint = FitTheme.colors.water)
+            Icon(lucide("droplet"), contentDescription = null, tint = FitTheme.colors.water)
             Column(Modifier.weight(1f)) {
                 Text("Water", style = MaterialTheme.typography.titleSmall)
                 Text(
@@ -141,7 +147,7 @@ private fun WaterCard(waterMl: Int, targetMl: Int?, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(lucide("chevron-right"), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -157,7 +163,7 @@ private fun MealHeader(meal: Meal, kcal: Double, hasEntries: Boolean, onAdd: () 
             Text(meal.label, style = MaterialTheme.typography.titleMedium)
             if (hasEntries) Text("${kcal.rounded()} kcal", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        IconButton(onAdd) { Icon(Icons.Default.Add, contentDescription = "Add food to ${meal.label}", tint = MaterialTheme.colorScheme.primary) }
+        IconButton(onAdd) { Icon(lucide("plus"), contentDescription = "Add food to ${meal.label}", tint = MaterialTheme.colorScheme.primary) }
     }
 }
 

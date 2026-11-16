@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.body
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -96,7 +97,7 @@ fun SupplementsScreen(onBack: () -> Unit, vm: SupplementsViewModel = hiltViewMod
         })
     }) { padding ->
         if (state.supplements.isEmpty() && !state.loading) {
-            EmptyState(Icons.Default.Add, "No supplements yet", "Add what you take and tick it off each day. Adherence is tracked from the day you add it.", Modifier.padding(padding), "Add supplement") { adding = true }
+            EmptyState(lucide("plus"), "No supplements yet", "Add what you take and tick it off each day. Adherence is tracked from the day you add it.", Modifier.padding(padding), "Add supplement") { adding = true }
         } else LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(horizontal = Spacing.screenHorizontal, vertical = Spacing.sm),

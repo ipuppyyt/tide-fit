@@ -158,7 +158,7 @@ fun Checkbox(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: 
                 .border(1.5.dp, if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, shape),
             contentAlignment = Alignment.Center
         ) {
-            if (checked) Icon(Icons.Filled.Check, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onPrimary)
+            if (checked) Icon(lucide("check"), null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }

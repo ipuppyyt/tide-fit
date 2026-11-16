@@ -96,3 +96,8 @@ Top-level: Home, Nutrition, Workouts, Progress, Profile (bottom bar). Secondary 
 set JAVA_HOME=<JDK 17>
 gradlew assembleDebug testDebugUnitTest
 ```
+
+## Third-party assets
+- Icons: [Lucide](https://lucide.dev) (ISC licence), SVGs in `app/src/main/assets/icons`, drawn at runtime by `Lucide.kt`.
+- Typeface: Plus Jakarta Sans (SIL OFL 1.1), `res/font/plusjakarta.ttf`.
+- Photos: six free-to-use Unsplash photos in `res/drawable-nodpi/photo_*.jpg` (Unsplash licence, no attribution required).

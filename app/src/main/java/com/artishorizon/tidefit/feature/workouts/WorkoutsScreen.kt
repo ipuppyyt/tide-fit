@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.workouts
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,7 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.artishorizon.tidefit.core.designsystem.FitTheme
 import com.artishorizon.tidefit.core.designsystem.Radii
-import com.artishorizon.tidefit.core.designsystem.components.HeroCard
+import com.artishorizon.tidefit.core.designsystem.components.PhotoCard
 import com.artishorizon.tidefit.core.designsystem.components.IconBadge
 import com.artishorizon.tidefit.core.designsystem.components.QuickTile
 import com.artishorizon.tidefit.core.designsystem.components.pressable
@@ -113,7 +114,7 @@ fun WorkoutsScreen(
 
         // Hero: resume the running session, or invite the next one.
         val active = state.active
-        HeroCard(onClick = if (active != null) ({ onOpenWorkout(active.id) }) else null) {
+        PhotoCard(com.artishorizon.tidefit.R.drawable.photo_barbell, height = 300.dp, onClick = if (active != null) ({ onOpenWorkout(active.id) }) else null) {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                 if (active != null) {
                     val done = active.sets.count { it.completed }
@@ -131,17 +132,17 @@ fun WorkoutsScreen(
         }
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            QuickTile(Icons.Outlined.FitnessCenter, "Exercises", onOpenExercises)
-            QuickTile(Icons.Outlined.History, "History", onOpenHistory)
-            QuickTile(Icons.Outlined.QueryStats, "Stats", onOpenStats)
-            QuickTile(Icons.Outlined.Add, "Routine", onClick = { onEditRoutine(0) })
+            QuickTile(lucide("dumbbell"), "Exercises", onOpenExercises)
+            QuickTile(lucide("clock"), "History", onOpenHistory)
+            QuickTile(lucide("chart-no-axes-combined"), "Stats", onOpenStats)
+            QuickTile(lucide("plus"), "Routine", onClick = { onEditRoutine(0) })
         }
 
         SectionHeader("Routines")
         if (state.routines.isEmpty()) {
             FitCard(onClick = { onEditRoutine(0) }) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                    IconBadge(Icons.Outlined.Add, MaterialTheme.colorScheme.primary)
+                    IconBadge(lucide("plus"), MaterialTheme.colorScheme.primary)
                     Column {
                         Text("Create your first routine", style = MaterialTheme.typography.titleMedium)
                         Text("No routines yet. Create one to start a planned workout in one tap.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -153,7 +154,7 @@ fun WorkoutsScreen(
             FitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                        IconBadge(Icons.Outlined.FitnessCenter, MaterialTheme.colorScheme.primary)
+                        IconBadge(lucide("dumbbell"), MaterialTheme.colorScheme.primary)
                         Column(Modifier.weight(1f)) {
                             Text(r.name, style = MaterialTheme.typography.titleMedium)
                             Text(
@@ -182,7 +183,7 @@ fun WorkoutsScreen(
         state.recent.forEach { s ->
             FitCard(onClick = { onOpenSummary(s.id) }) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                    IconBadge(Icons.Outlined.History, FitTheme.colors.water)
+                    IconBadge(lucide("clock"), FitTheme.colors.water)
                     Column(Modifier.weight(1f)) {
                         Text(s.name, style = MaterialTheme.typography.titleSmall)
                         Text(
@@ -202,8 +203,8 @@ fun WorkoutsScreen(
 @Composable
 private fun DarkPill(text: String, onClick: () -> Unit) {
     Box(
-        Modifier.clip(Radii.pill).background(FitTheme.colors.onHero).pressable(onClick = onClick).padding(horizontal = 24.dp, vertical = 14.dp)
-    ) { Text(text, style = MaterialTheme.typography.labelLarge, color = FitTheme.colors.hero) }
+        Modifier.clip(Radii.pill).background(FitTheme.colors.hero).pressable(onClick = onClick).padding(horizontal = 24.dp, vertical = 14.dp)
+    ) { Text(text, style = MaterialTheme.typography.labelLarge, color = FitTheme.colors.onHero) }
 }
 
 fun friendlyDate(date: LocalDate, today: LocalDate): String = when (date) {

@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.nutrition
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,13 +55,13 @@ fun LogEntryScreen(onBack: () -> Unit, onEditFood: (foodId: Long, isRecipe: Bool
     Scaffold(
         topBar = {
             FitTopBar(if (state.isEdit) "Edit entry" else "Log food", onBack) {
-                if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(Icons.Default.Delete, contentDescription = "Delete entry") }
+                if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(lucide("trash"), contentDescription = "Delete entry") }
             }
         }
     ) { padding ->
         when {
             state.loading -> LoadingState(Modifier.padding(padding))
-            state.notFound -> EmptyState(Icons.Default.Delete, "Not found", "This item no longer exists.", Modifier.padding(padding))
+            state.notFound -> EmptyState(lucide("trash"), "Not found", "This item no longer exists.", Modifier.padding(padding))
             else -> Column(
                 Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState())
                     .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.sm),

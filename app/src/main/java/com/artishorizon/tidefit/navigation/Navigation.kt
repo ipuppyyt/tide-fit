@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.navigation
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -88,17 +89,16 @@ import kotlinx.serialization.Serializable
 private data class TopLevel(
     val route: Any,
     val label: String,
-    val icon: ImageVector,
-    val selectedIcon: ImageVector,
+    val icon: String,
     val matches: (androidx.navigation.NavDestination?) -> Boolean
 )
 
 private val topLevel = listOf(
-    TopLevel(HomeRoute, "Home", Icons.Outlined.Home, Icons.Filled.Home) { it?.hasRoute<HomeRoute>() == true },
-    TopLevel(NutritionRoute, "Nutrition", Icons.Outlined.Restaurant, Icons.Filled.Restaurant) { it?.hasRoute<NutritionRoute>() == true },
-    TopLevel(WorkoutsRoute, "Workouts", Icons.Outlined.FitnessCenter, Icons.Filled.FitnessCenter) { it?.hasRoute<WorkoutsRoute>() == true },
-    TopLevel(ProgressRoute, "Progress", Icons.Outlined.QueryStats, Icons.Filled.QueryStats) { it?.hasRoute<ProgressRoute>() == true },
-    TopLevel(ProfileRoute, "Profile", Icons.Outlined.Person, Icons.Filled.Person) { it?.hasRoute<ProfileRoute>() == true }
+    TopLevel(HomeRoute, "Home", "house") { it?.hasRoute<HomeRoute>() == true },
+    TopLevel(NutritionRoute, "Nutrition", "utensils") { it?.hasRoute<NutritionRoute>() == true },
+    TopLevel(WorkoutsRoute, "Workouts", "dumbbell") { it?.hasRoute<WorkoutsRoute>() == true },
+    TopLevel(ProgressRoute, "Progress", "chart-no-axes-combined") { it?.hasRoute<ProgressRoute>() == true },
+    TopLevel(ProfileRoute, "Profile", "user") { it?.hasRoute<ProfileRoute>() == true }
 )
 
 @Composable
@@ -112,7 +112,7 @@ fun MainNavigation() {
         bottomBar = {
             if (showBar) {
                 FloatingTabBar(
-                    items = topLevel.map { TabItem(it.label, it.icon, it.selectedIcon) },
+                    items = topLevel.map { TabItem(it.label, lucide(it.icon), lucide(it.icon)) },
                     selectedIndex = topLevel.indexOfFirst { it.matches(destination) }.coerceAtLeast(0),
                     onSelect = { index ->
                         nav.navigate(topLevel[index].route) {

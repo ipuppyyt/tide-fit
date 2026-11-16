@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.body
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -155,7 +156,7 @@ fun MeasurementsScreen(onBack: () -> Unit, vm: MeasurementsViewModel = hiltViewM
                             Text(formatMeasurement(m.type, m.value, unit), style = MaterialTheme.typography.titleSmall)
                             Text(friendlyDate(m.date, state.today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        IconButton({ confirmDelete = m }) { Icon(Icons.Default.Delete, contentDescription = "Delete ${m.type.label} reading") }
+                        IconButton({ confirmDelete = m }) { Icon(lucide("trash"), contentDescription = "Delete ${m.type.label} reading") }
                     }
                 }
             }

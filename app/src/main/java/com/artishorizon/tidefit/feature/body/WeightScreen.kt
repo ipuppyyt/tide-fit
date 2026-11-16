@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.body
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -193,7 +194,7 @@ fun WeightScreen(onBack: () -> Unit, vm: WeightViewModel = hiltViewModel()) {
                             Text(formatWeight(e.weightKg, state.unit), style = MaterialTheme.typography.titleSmall)
                             Text(friendlyDate(e.date, state.today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        IconButton({ confirmDelete = e }) { Icon(Icons.Default.Delete, contentDescription = "Delete weight entry") }
+                        IconButton({ confirmDelete = e }) { Icon(lucide("trash"), contentDescription = "Delete weight entry") }
                     }
                 }
             }

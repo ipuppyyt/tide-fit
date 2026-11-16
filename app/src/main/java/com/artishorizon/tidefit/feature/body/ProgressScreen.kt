@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.body
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.artishorizon.tidefit.core.designsystem.FitTheme
-import com.artishorizon.tidefit.core.designsystem.components.HeroCard
+import com.artishorizon.tidefit.core.designsystem.components.PhotoCard
 import com.artishorizon.tidefit.core.designsystem.components.IconBadge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -169,14 +170,14 @@ fun ProgressScreen(
             Text("Progress", style = MaterialTheme.typography.headlineLarge)
         }
 
-        HeroCard(onClick = onOpenCoach) {
+        PhotoCard(com.artishorizon.tidefit.R.drawable.photo_yoga, height = 220.dp, onClick = onOpenCoach) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                     Text("ChatGPT coaching", style = MaterialTheme.typography.headlineMedium)
                     Text("Export your data, paste ChatGPT's reply, review and approve changes.", style = MaterialTheme.typography.bodyMedium)
                 }
-                Box(Modifier.size(48.dp).clip(CircleShape).background(c.onHero), contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = c.hero)
+                Box(Modifier.size(48.dp).clip(CircleShape).background(c.hero), contentAlignment = Alignment.Center) {
+                    Icon(lucide("arrow-right"), contentDescription = null, tint = c.onHero)
                 }
             }
         }
@@ -188,21 +189,21 @@ fun ProgressScreen(
 
         SectionHeader("Body")
         TileRow {
-            AreaTile("Weight", Icons.Outlined.MonitorWeight, c.water, state.weight, onOpenWeight, Modifier.weight(1f))
-            AreaTile("Measurements", Icons.Outlined.Straighten, c.carbs, state.measurements, onOpenMeasurements, Modifier.weight(1f))
+            AreaTile("Weight", lucide("scale"), c.water, state.weight, onOpenWeight, Modifier.weight(1f))
+            AreaTile("Measurements", lucide("ruler"), c.carbs, state.measurements, onOpenMeasurements, Modifier.weight(1f))
         }
 
         SectionHeader("Lifestyle")
         TileRow {
-            AreaTile("Sleep", Icons.Outlined.Bedtime, c.fat, state.sleep, onOpenSleep, Modifier.weight(1f))
-            AreaTile("Recovery", Icons.Outlined.Favorite, c.protein, state.recovery, onOpenRecovery, Modifier.weight(1f))
+            AreaTile("Sleep", lucide("moon"), c.fat, state.sleep, onOpenSleep, Modifier.weight(1f))
+            AreaTile("Recovery", lucide("heart-pulse"), c.protein, state.recovery, onOpenRecovery, Modifier.weight(1f))
         }
-        AreaTile("Supplements", Icons.Outlined.Medication, c.fibre, state.supplements, onOpenSupplements, Modifier.fillMaxWidth())
+        AreaTile("Supplements", lucide("pill"), c.fibre, state.supplements, onOpenSupplements, Modifier.fillMaxWidth())
 
         SectionHeader("Training")
         FitCard(onClick = onOpenTraining) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                IconBadge(Icons.Outlined.QueryStats, MaterialTheme.colorScheme.primary)
+                IconBadge(lucide("chart-no-axes-combined"), MaterialTheme.colorScheme.primary)
                 Column(Modifier.weight(1f)) {
                     Text("Training stats", style = MaterialTheme.typography.titleMedium)
                     Text("Weekly volume, sets per muscle and personal records.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

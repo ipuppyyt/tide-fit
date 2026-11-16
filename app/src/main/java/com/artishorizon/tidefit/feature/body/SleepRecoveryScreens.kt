@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.body
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -144,7 +145,7 @@ fun SleepScreen(onBack: () -> Unit, vm: SleepViewModel = hiltViewModel()) {
                             Text(formatSleep(e.durationMinutes) + (e.quality?.let { " · quality $it/5" } ?: ""), style = MaterialTheme.typography.titleSmall)
                             Text(friendlyDate(e.date, state.today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        IconButton({ vm.delete(e.date) }) { Icon(Icons.Default.Delete, contentDescription = "Delete sleep entry") }
+                        IconButton({ vm.delete(e.date) }) { Icon(lucide("trash"), contentDescription = "Delete sleep entry") }
                     }
                 }
             }
@@ -238,7 +239,7 @@ fun RecoveryScreen(onBack: () -> Unit, vm: RecoveryViewModel = hiltViewModel()) 
                             Text("Soreness ${e.soreness} · Energy ${e.energy} · Stress ${e.stress}", style = MaterialTheme.typography.titleSmall)
                             Text(friendlyDate(e.date, state.today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        IconButton({ vm.delete(e.date) }) { Icon(Icons.Default.Delete, contentDescription = "Delete check-in") }
+                        IconButton({ vm.delete(e.date) }) { Icon(lucide("trash"), contentDescription = "Delete check-in") }
                     }
                 }
             }

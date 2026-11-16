@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.workouts
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -246,7 +247,7 @@ private fun ExerciseBlock(name: String, exerciseId: Long, sets: List<WorkoutSet>
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                IconButton({ vm.removeExercise(exerciseId) }) { Icon(Icons.Default.Close, contentDescription = "Remove $name") }
+                IconButton({ vm.removeExercise(exerciseId) }) { Icon(lucide("x"), contentDescription = "Remove $name") }
             }
             sets.forEach { SetRow(it, unit, vm) }
             SecondaryButton("Add set", { vm.addSet(exerciseId) }, Modifier.fillMaxWidth())
@@ -276,8 +277,8 @@ private fun SetRow(set: WorkoutSet, unit: WeightUnit, vm: ActiveWorkoutViewModel
         FitTextField(weightText, { weightText = it; commit(it, repsText) }, unit.label, Modifier.weight(1f), KeyboardType.Decimal)
         FitTextField(repsText, { repsText = it; commit(weightText, it) }, "Reps", Modifier.weight(1f), KeyboardType.Number)
         FilledIconToggleButton(checked = set.completed, onCheckedChange = { vm.toggleComplete(set) }) {
-            Icon(Icons.Default.Check, contentDescription = if (set.completed) "Set ${set.setNumber} done" else "Mark set ${set.setNumber} done")
+            Icon(lucide("check"), contentDescription = if (set.completed) "Set ${set.setNumber} done" else "Mark set ${set.setNumber} done")
         }
-        IconButton({ vm.deleteSet(set.id) }) { Icon(Icons.Default.Delete, contentDescription = "Delete set ${set.setNumber}") }
+        IconButton({ vm.deleteSet(set.id) }) { Icon(lucide("trash"), contentDescription = "Delete set ${set.setNumber}") }
     }
 }

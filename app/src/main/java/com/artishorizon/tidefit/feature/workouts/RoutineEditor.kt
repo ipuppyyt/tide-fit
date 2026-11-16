@@ -1,5 +1,6 @@
 package com.artishorizon.tidefit.feature.workouts
 
+import com.artishorizon.tidefit.core.designsystem.components.lucide
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -133,7 +134,7 @@ fun RoutineEditorScreen(onBack: () -> Unit, vm: RoutineEditorViewModel = hiltVie
 
     Scaffold(topBar = {
         FitTopBar(if (state.isEdit) "Edit routine" else "New routine", onBack) {
-            if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(Icons.Default.Delete, contentDescription = "Delete routine") }
+            if (state.isEdit) IconButton({ confirmDelete = true }) { Icon(lucide("trash"), contentDescription = "Delete routine") }
         }
     }) { padding ->
         if (state.loading) { LoadingState(Modifier.padding(padding)); return@Scaffold }
@@ -151,9 +152,9 @@ fun RoutineEditorScreen(onBack: () -> Unit, vm: RoutineEditorViewModel = hiltVie
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(row.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                            IconButton({ vm.move(i, -1) }, enabled = i > 0) { Icon(Icons.Default.ArrowUpward, contentDescription = "Move ${row.name} up") }
-                            IconButton({ vm.move(i, 1) }, enabled = i < state.rows.lastIndex) { Icon(Icons.Default.ArrowDownward, contentDescription = "Move ${row.name} down") }
-                            IconButton({ vm.remove(i) }) { Icon(Icons.Default.Close, contentDescription = "Remove ${row.name}") }
+                            IconButton({ vm.move(i, -1) }, enabled = i > 0) { Icon(lucide("arrow-up"), contentDescription = "Move ${row.name} up") }
+                            IconButton({ vm.move(i, 1) }, enabled = i < state.rows.lastIndex) { Icon(lucide("arrow-down"), contentDescription = "Move ${row.name} down") }
+                            IconButton({ vm.remove(i) }) { Icon(lucide("x"), contentDescription = "Remove ${row.name}") }
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                             FitTextField(row.sets, { v -> vm.edit(i) { it.copy(sets = v) } }, "Sets", Modifier.weight(1f), KeyboardType.Number)

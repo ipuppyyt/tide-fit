@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -352,7 +352,12 @@ fun EmptyState(
 @Composable
 fun LoadingState(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxSize().semantics { contentDescription = "Loading" }, contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+        val spin = androidx.compose.animation.core.rememberInfiniteTransition(label = "spin")
+        val angle by spin.animateFloat(0f, 360f, androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(900, easing = androidx.compose.animation.core.LinearEasing)), label = "angle")
+        val color = MaterialTheme.colorScheme.primary
+        androidx.compose.foundation.Canvas(Modifier.size(40.dp)) {
+            drawArc(color, angle, 270f, false, style = androidx.compose.ui.graphics.drawscope.Stroke(5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round))
+        }
     }
 }
 
@@ -389,4 +394,26 @@ fun IconBadge(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, siz
         modifier.size(size).clip(androidx.compose.foundation.shape.CircleShape).background(tint.copy(alpha = 0.16f)),
         contentAlignment = Alignment.Center
     ) { Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(size * 0.5f)) }
+}
+
+/** Full-bleed photo card with a dark scrim so white text stays readable. Photos are bundled (Unsplash licence). */
+@Composable
+fun PhotoCard(
+    @androidx.annotation.DrawableRes photo: Int,
+    modifier: Modifier = Modifier,
+    height: androidx.compose.ui.unit.Dp = 200.dp,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    val base = modifier.fillMaxWidth().height(height).let { if (onClick != null) it.pressable(onClick = onClick) else it }.clip(Radii.xl)
+    Box(base) {
+        androidx.compose.foundation.Image(
+            androidx.compose.ui.res.painterResource(photo), contentDescription = null,
+            Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x33000000), Color(0xE6050608)))))
+        CompositionLocalProvider(LocalContentColor provides Color.White) {
+            Box(Modifier.fillMaxSize().padding(Spacing.xl), contentAlignment = Alignment.BottomStart) { content() }
+        }
+    }
 }
