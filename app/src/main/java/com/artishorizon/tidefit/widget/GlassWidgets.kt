@@ -52,7 +52,7 @@ abstract class GlassWidget : AppWidgetProvider() {
     companion object {
         suspend fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
-            listOf(CaloriesWidget(), WaterWidget(), WorkoutWidget()).forEach { widget ->
+            listOf(CaloriesWidget(), WaterWidget(), WorkoutWidget(), StreakWidget()).forEach { widget ->
                 val ids = manager.getAppWidgetIds(ComponentName(context, widget::class.java))
                 if (ids.isNotEmpty()) widget.render(context, manager, ids)
             }
@@ -74,4 +74,9 @@ class WaterWidget : GlassWidget() {
 class WorkoutWidget : GlassWidget() {
     override fun paintBitmap(art: GlassArt, snap: WidgetSnapshot) = art.workout(snap)
     override fun describe(snap: WidgetSnapshot) = "Daily workout: ${snap.workoutMinutes} minutes" + (snap.workoutName?.let { ", $it" } ?: "")
+}
+
+class StreakWidget : GlassWidget() {
+    override fun paintBitmap(art: GlassArt, snap: WidgetSnapshot) = art.streak(snap)
+    override fun describe(snap: WidgetSnapshot) = "Streak: ${snap.streak} days" + if (snap.streakToday) ", done for today" else ""
 }

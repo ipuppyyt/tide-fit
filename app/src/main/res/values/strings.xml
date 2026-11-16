@@ -5,4 +5,5 @@
     <string name="widget_calories_description">Calories eaten and left today with a progress loop.</string>
     <string name="widget_water_description">Water so far today in litres, with a rising gauge.</string>
     <string name="widget_workout_description">Time trained today with a progress bar.</string>
+    <string name="widget_streak_description">Your daily streak with the last seven days.</string>
 </resources>

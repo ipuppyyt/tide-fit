@@ -87,12 +87,12 @@ class TodayWidget : AppWidgetProvider() {
             ids.forEach { id ->
             val views = RemoteViews(context.packageName, R.layout.widget_today)
             val hero = com.artishorizon.tidefit.core.designsystem.Palettes.resolve(context, ep.appSettings().palette.first()).fit
-            val ink = hero.onHero.toArgb()
-            val soft = hero.onHero.copy(alpha = 0.72f).toArgb()
+            val ink = 0xFFFFFFFF.toInt()
+            val soft = 0xFFB5B9C2.toInt()
             val options = manager.getAppWidgetOptions(id)
             val wDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250)
             val hDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 70)
-            views.setImageViewBitmap(R.id.widget_bg, WidgetArt.render(context, wDp, hDp, hero.hero.toArgb()))
+            views.setImageViewBitmap(R.id.widget_bg, GlassArt(context, wDp, hDp).background(hero.hero.toArgb(), hero.hero.toArgb()))
             views.setInt(R.id.widget_flame_icon, "setColorFilter", ink)
             views.setInt(R.id.widget_drop_icon, "setColorFilter", soft)
             listOf(R.id.widget_kcal, R.id.widget_streak, R.id.widget_add_water).forEach { views.setTextColor(it, ink) }

@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:contentDescription="@null"
         android:scaleType="fitXY"
-        android:src="@drawable/widget_bg" />
+        android:src="@drawable/widget_preview_today" />
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                 android:text="1,420"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FF0B1100"
+                android:textColor="#FFFFFFFF"
                 android:textSize="26sp"
                 android:textStyle="bold" />
             <TextView
@@ -48,7 +48,7 @@
                 android:layout_gravity="bottom"
                 android:layout_marginStart="6dp"
                 android:layout_marginBottom="4dp"
-                android:textColor="#B30B1100"
+                android:textColor="#FFB5B9C2"
                 android:textSize="12sp" />
         </LinearLayout>
         <LinearLayout
@@ -68,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:textColor="#B30B1100"
+                android:textColor="#FFB5B9C2"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
@@ -96,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="3dp"
-                android:textColor="#FF0B1100"
+                android:textColor="#FFFFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -110,7 +110,7 @@
             android:paddingTop="6dp"
             android:paddingEnd="12dp"
             android:paddingBottom="6dp"
-            android:textColor="#FF0B1100"
+            android:textColor="#FFFFFFFF"
             android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>

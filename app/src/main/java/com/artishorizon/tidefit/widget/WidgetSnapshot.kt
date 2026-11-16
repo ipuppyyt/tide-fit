@@ -13,7 +13,10 @@ data class WidgetSnapshot(
     val waterMl: Int,
     val waterTargetMl: Int?,
     val workoutMinutes: Int,
-    val workoutName: String?
+    val workoutName: String?,
+    val streak: Int = 0,
+    val streakToday: Boolean = false,
+    val week: List<Boolean> = emptyList()
 ) {
     val leftKcal: Int? get() = targetKcal?.let { it - eatenKcal }
 
@@ -27,7 +30,8 @@ data class WidgetSnapshot(
             val sessions = ep.workouts().observeHistory().first()
                 .filter { it.endedAt != null && it.startedAt.atZone(zone).toLocalDate() == today }
             val minutes = sessions.sumOf { Duration.between(it.startedAt, it.endedAt).toMinutes() }.toInt()
-            return WidgetSnapshot(eaten, targets?.caloriesKcal, water, targets?.waterMl, minutes, sessions.maxByOrNull { it.startedAt }?.name)
+            val streak = ep.streaks().current()
+            return WidgetSnapshot(eaten, targets?.caloriesKcal, water, targets?.waterMl, minutes, sessions.maxByOrNull { it.startedAt }?.name, streak.current, streak.todayDone, streak.week.map { it.second })
         }
     }
 }

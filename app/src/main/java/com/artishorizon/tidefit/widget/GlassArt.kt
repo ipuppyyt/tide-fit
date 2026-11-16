@@ -35,10 +35,16 @@ class GlassArt(context: Context, widthDp: Int, heightDp: Int) {
     private enum class Glow(val top: Int, val bottom: Int) {
         ORANGE(0xFFFF5A1F.toInt(), 0xFFFFB020.toInt()),
         BLUE(0xFF1D4ED8.toInt(), 0xFF22B8FF.toInt()),
-        RED(0xFFB3122B.toInt(), 0xFFFF3B52.toInt())
+        RED(0xFFB3122B.toInt(), 0xFFFF3B52.toInt()),
+        PURPLE(0xFF5B21B6.toInt(), 0xFFE879F9.toInt())
     }
 
-    private fun card(glow: Glow): Pair<Bitmap, Canvas> {
+    private fun card(glow: Glow) = card(glow.top, glow.bottom)
+
+    /** Just the card and its glow, for widgets that lay real views on top. */
+    fun background(top: Int, bottom: Int): Bitmap = card(top, bottom).first
+
+    private fun card(glowTop: Int, glowBottom: Int): Pair<Bitmap, Canvas> {
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
         val r = dp(28f)
@@ -50,7 +56,7 @@ class GlassArt(context: Context, widthDp: Int, heightDp: Int) {
         c.drawRect(rect, paint)
         paint.shader = LinearGradient(
             0f, h * 0.30f, 0f, h.toFloat(),
-            intArrayOf(glow.top and 0xFFFFFF, (0x99 shl 24) or (glow.top and 0xFFFFFF), glow.bottom),
+            intArrayOf(glowTop and 0xFFFFFF, (0x99 shl 24) or (glowTop and 0xFFFFFF), glowBottom),
             floatArrayOf(0f, 0.62f, 1f), Shader.TileMode.CLAMP
         )
         c.drawRect(0f, h * 0.30f, w.toFloat(), h.toFloat(), paint)
@@ -215,6 +221,27 @@ class GlassArt(context: Context, widthDp: Int, heightDp: Int) {
             paint.shader = LinearGradient(fill.left, 0f, fill.right, 0f, 0xFFFFD6DB.toInt(), 0xFFFFFFFF.toInt(), Shader.TileMode.CLAMP)
             c.drawRoundRect(fill, fill.height() / 2f, fill.height() / 2f, paint)
             paint.shader = null
+        }
+        return bmp
+    }
+
+    // ------------------------------------------------------------------ streak
+
+    fun streak(snap: WidgetSnapshot): Bitmap {
+        val (bmp, c) = card(Glow.PURPLE)
+        val pad = dp(18f)
+        text(c, "Daily streak", pad, dp(30f), 13f, 0xFF9096A0.toInt())
+        val note = if (snap.streakToday) "Done for today" else if (snap.streak > 0) "Log today to keep it" else "Log a meal to start"
+        text(c, note, pad, h - dp(92f), 12f, 0xCCF5D0FE.toInt())
+        bigValue(c, snap.streak.toString(), if (snap.streak == 1) "day" else "days", pad, h - dp(56f), 34f)
+        val n = snap.week.size.coerceAtLeast(1)
+        val gap = dp(8f)
+        val dot = ((w - 2 * pad - gap * (n - 1)) / n).coerceAtMost(dp(20f))
+        val cy = h - pad - dot / 2f
+        snap.week.forEachIndexed { i, on ->
+            paint.style = Paint.Style.FILL
+            paint.color = if (on) 0xFFFFFFFF.toInt() else 0x40FFFFFF
+            c.drawCircle(pad + dot / 2f + i * (dot + gap), cy, dot / 2f, paint)
         }
         return bmp
     }
