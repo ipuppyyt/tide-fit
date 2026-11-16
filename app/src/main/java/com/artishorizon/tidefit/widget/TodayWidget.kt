@@ -83,11 +83,15 @@ class TodayWidget : AppWidgetProvider() {
             val glass = ep.appSettings().defaultGlassMl.first()
             val streak = ep.streaks().current()
 
+            ids.forEach { id ->
             val views = RemoteViews(context.packageName, R.layout.widget_today)
             val hero = com.artishorizon.tidefit.core.designsystem.Palettes.resolve(context, ep.appSettings().palette.first()).fit
             val ink = hero.onHero.toArgb()
             val soft = hero.onHero.copy(alpha = 0.72f).toArgb()
-            views.setInt(R.id.widget_bg, "setColorFilter", hero.hero.toArgb())
+            val options = manager.getAppWidgetOptions(id)
+            val wDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250)
+            val hDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 70)
+            views.setImageViewBitmap(R.id.widget_bg, WidgetArt.render(context, wDp, hDp, hero.hero.toArgb()))
             views.setInt(R.id.widget_flame_icon, "setColorFilter", ink)
             views.setInt(R.id.widget_drop_icon, "setColorFilter", soft)
             listOf(R.id.widget_kcal, R.id.widget_streak, R.id.widget_add_water).forEach { views.setTextColor(it, ink) }
@@ -112,7 +116,8 @@ class TodayWidget : AppWidgetProvider() {
                 R.id.widget_add_water,
                 PendingIntent.getBroadcast(context, 1, Intent(context, TodayWidget::class.java).setAction(ACTION_ADD_WATER), flags)
             )
-            manager.updateAppWidget(ids, views)
+            manager.updateAppWidget(id, views)
+            }
         }
     }
 }
