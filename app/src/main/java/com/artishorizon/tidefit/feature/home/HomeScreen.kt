@@ -143,6 +143,7 @@ fun HomeScreen(
     onOpenWorkouts: () -> Unit,
     onOpenWeight: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenStreak: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -171,7 +172,7 @@ fun HomeScreen(
                 )
                 Text(if (profile != null) "Hello, ${profile.name}" else "Today", style = MaterialTheme.typography.headlineLarge)
             }
-            StreakPill(state.streak)
+            StreakPill(state.streak, onOpenStreak)
             Spacer(Modifier.width(Spacing.sm))
             Box(
                 Modifier.size(48.dp).clip(CircleShape)
@@ -325,12 +326,13 @@ fun HomeScreen(
 }
 
 @Composable
-private fun StreakPill(streak: com.artishorizon.tidefit.domain.calc.Streak) {
+private fun StreakPill(streak: com.artishorizon.tidefit.domain.calc.Streak, onClick: () -> Unit) {
     val flame = Color(0xFFFF8A3D)
     val lit = streak.todayDone
     val tint = if (lit) flame else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .pressable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .semantics(mergeDescendants = true) {
                 contentDescription = "${streak.current}-day streak" + if (!lit && streak.current > 0) ", log something today to keep it" else ""

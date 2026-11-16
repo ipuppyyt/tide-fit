@@ -88,6 +88,7 @@ import kotlinx.serialization.Serializable
 @Serializable data object SupplementsRoute
 @Serializable data object CoachRoute
 @Serializable data object DataRoute
+@Serializable data object StreakRoute
 @Serializable data object CoachHistoryRoute
 
 private data class TopLevel(
@@ -152,9 +153,11 @@ fun MainNavigation() {
                         }
                     },
                     onOpenWeight = { nav.navigate(WeightRoute) },
-                    onOpenProfile = { nav.navigate(ProfileRoute) }
+                    onOpenProfile = { nav.navigate(ProfileRoute) },
+                    onOpenStreak = { nav.navigate(StreakRoute) }
                 )
             }
+            composable<StreakRoute> { com.artishorizon.tidefit.feature.streak.StreakScreen(onBack = { nav.popBackStack() }) }
             composable<NutritionRoute> {
                 NutritionScreen(
                     contentPadding = content,

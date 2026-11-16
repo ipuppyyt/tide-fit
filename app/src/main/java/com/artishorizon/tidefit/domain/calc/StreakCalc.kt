@@ -8,7 +8,8 @@ data class Streak(
     val best: Int,
     val todayDone: Boolean,
     /** The last [WEEK] days, oldest first, true where something was logged. */
-    val week: List<Pair<LocalDate, Boolean>>
+    val week: List<Pair<LocalDate, Boolean>>,
+    val activeDays: Set<LocalDate> = emptySet()
 ) {
     companion object { val EMPTY = Streak(0, 0, false, emptyList()) }
 }
@@ -36,7 +37,7 @@ object StreakCalc {
             prev = d
         }
         val week = (WEEK - 1 downTo 0).map { today.minusDays(it.toLong()).let { d -> d to (d in activeDays) } }
-        return Streak(current, maxOf(best, current), todayDone, week)
+        return Streak(current, maxOf(best, current), todayDone, week, activeDays)
     }
 
     fun nextMilestone(current: Int): Int? = MILESTONES.firstOrNull { it > current }
