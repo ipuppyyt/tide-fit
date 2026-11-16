@@ -1,6 +1,14 @@
 package com.artishorizon.tidefit.feature.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import com.artishorizon.tidefit.core.media.AvatarViewModel
+import com.artishorizon.tidefit.core.designsystem.components.SecondaryButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +79,9 @@ import java.util.Locale
 @Composable
 fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () -> Unit, viewModel: ProfileViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val avatarVm: AvatarViewModel = hiltViewModel()
+    val avatar by avatarVm.image.collectAsStateWithLifecycle()
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(avatarVm::pick) }
     if (state.loading) { LoadingState(); return }
 
     Column(Modifier.fillMaxSize()) {
@@ -83,7 +94,7 @@ fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () 
             verticalArrangement = Arrangement.spacedBy(Spacing.lg)
         ) {
             state.profile?.let { p ->
-                ProfileHero(p, onEditProfile)
+                ProfileHero(p, avatar, onPickPhoto = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, onEdit = onEditProfile)
                 JourneyCard(p)
                 TargetsBento(p, state.targets)
             }
@@ -104,39 +115,48 @@ fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () 
 /* ───────────────────────────── Hero ───────────────────────────── */
 
 @Composable
-private fun ProfileHero(p: UserProfile, onEdit: () -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
+private fun ProfileHero(p: UserProfile, avatar: ImageBitmap?, onPickPhoto: () -> Unit, onEdit: () -> Unit) {
+    val accent = FitTheme.colors.hero
     val bmi = BodyMetrics.bmi(p.currentWeightKg, p.heightCm)
     PhotoCard(R.drawable.photo_gym, height = 340.dp) {
         Box(Modifier.fillMaxSize()) {
             // Avatar with ring and pencil badge
             Box(Modifier.align(Alignment.TopStart)) {
                 Box(
-                    Modifier.size(84.dp).clip(CircleShape).border(3.dp, accent, CircleShape).padding(5.dp).clip(CircleShape).background(accent),
+                    Modifier.size(84.dp).clip(CircleShape).border(3.dp, accent, CircleShape).padding(5.dp).clip(CircleShape).background(accent)
+                        .pressable(role = androidx.compose.ui.semantics.Role.Button, onClick = onPickPhoto),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(p.name.firstOrNull()?.uppercase() ?: "?", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onPrimary)
+                    if (avatar != null) Image(avatar, "Profile photo", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    else Text(p.name.firstOrNull()?.uppercase() ?: "?", style = MaterialTheme.typography.headlineLarge, color = FitTheme.colors.onHero)
                 }
                 Box(
-                    Modifier.align(Alignment.BottomEnd).size(30.dp).clip(CircleShape).background(Color.White).pressable(onClick = onEdit),
+                    Modifier.align(Alignment.BottomEnd).size(30.dp).clip(CircleShape).background(Color.White).pressable(onClick = onPickPhoto),
                     contentAlignment = Alignment.Center
-                ) { Icon(lucide("pencil"), "Edit profile", tint = Color(0xFF0B0D10), modifier = Modifier.size(15.dp)) }
+                ) { Icon(lucide("camera"), "Change photo", tint = Color(0xFF0B0D10), modifier = Modifier.size(15.dp)) }
             }
-            Box(
-                Modifier.align(Alignment.TopEnd).clip(CircleShape).background(Color.Black.copy(alpha = 0.35f))
-                    .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape).padding(horizontal = 12.dp, vertical = 7.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(lucide("flame"), null, tint = accent, modifier = Modifier.size(14.dp))
-                    Text("${p.trainingDaysPerWeek} days / week", style = MaterialTheme.typography.labelMedium, color = Color.White)
+            Row(Modifier.align(Alignment.TopEnd), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(
+                    Modifier.clip(CircleShape).background(Color.Black.copy(alpha = 0.35f))
+                        .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape).padding(horizontal = 12.dp, vertical = 7.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Icon(lucide("flame"), null, tint = accent, modifier = Modifier.size(14.dp))
+                        Text("${p.trainingDaysPerWeek} days / week", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                    }
                 }
+                Box(
+                    Modifier.size(34.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.35f))
+                        .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape).pressable(onClick = onEdit),
+                    contentAlignment = Alignment.Center
+                ) { Icon(lucide("pencil"), "Edit profile", tint = Color.White, modifier = Modifier.size(15.dp)) }
             }
             Column(Modifier.align(Alignment.BottomStart), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(p.name, style = MaterialTheme.typography.displaySmall, color = Color.White)
                 Box(Modifier.clip(CircleShape).background(accent).padding(horizontal = 14.dp, vertical = 6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Icon(lucide("target"), null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(14.dp))
-                        Text(p.goal.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary)
+                        Icon(lucide("target"), null, tint = FitTheme.colors.onHero, modifier = Modifier.size(14.dp))
+                        Text(p.goal.label, style = MaterialTheme.typography.labelLarge, color = FitTheme.colors.onHero)
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -459,6 +479,7 @@ fun ProfileEditScreen(onDone: () -> Unit, viewModel: ProfileEditViewModel = hilt
         ) {
             val f = state.form
             val u = viewModel::updateForm
+            PhotoSection()
             Text("About you", style = MaterialTheme.typography.titleLarge); BasicsSection(f, u)
             Text("Body", style = MaterialTheme.typography.titleLarge); BodySection(f, u)
             Text("Goal", style = MaterialTheme.typography.titleLarge); GoalSection(f, u)
@@ -467,6 +488,33 @@ fun ProfileEditScreen(onDone: () -> Unit, viewModel: ProfileEditViewModel = hilt
             Text("Equipment", style = MaterialTheme.typography.titleLarge); EquipmentSection(f, u)
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             PrimaryButton("Save changes", viewModel::save, Modifier.fillMaxWidth(), enabled = !state.saving)
+        }
+    }
+}
+
+
+@Composable
+private fun PhotoSection() {
+    val vm: AvatarViewModel = hiltViewModel()
+    val image by vm.image.collectAsStateWithLifecycle()
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(vm::pick) }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.lg)) {
+        Box(
+            Modifier.size(84.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            val bmp = image
+            if (bmp != null) Image(bmp, "Profile photo", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            else Icon(lucide("user"), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(34.dp))
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Text("Profile photo", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                SecondaryButton(if (image == null) "Add photo" else "Change", { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) })
+                if (image != null) SecondaryButton("Remove", vm::remove)
+            }
+            Text("Stays on this device.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

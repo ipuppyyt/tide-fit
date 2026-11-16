@@ -152,6 +152,7 @@ fun HomeScreen(
             .padding(top = Spacing.md, bottom = Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
+        val avatarVm: com.artishorizon.tidefit.core.media.AvatarViewModel = androidx.hilt.navigation.compose.hiltViewModel()
         // Header: date, greeting and an initial avatar.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -170,7 +171,10 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 val initial = profile?.name?.firstOrNull()
-                if (initial != null) Text(initial.uppercase(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                val avatar by avatarVm.image.collectAsStateWithLifecycle()
+                val photo = avatar
+                if (photo != null) androidx.compose.foundation.Image(photo, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+                else if (initial != null) Text(initial.uppercase(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
                 else Icon(lucide("user"), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
         }

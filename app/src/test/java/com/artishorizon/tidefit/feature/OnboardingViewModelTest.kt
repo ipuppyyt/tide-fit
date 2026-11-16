@@ -26,10 +26,12 @@ import java.time.ZoneOffset
 private class FakeSettings : AppSettings {
     val done = MutableStateFlow(false)
     override val palette: Flow<String?> = MutableStateFlow(null)
+    override val avatarVersion: Flow<Long> = MutableStateFlow(0L)
     override val onboardingDone: Flow<Boolean> = done
     override val defaultGlassMl: Flow<Int> = MutableStateFlow(250)
     override suspend fun setDefaultGlassMl(ml: Int) {}
     override suspend fun setPalette(id: String?) {}
+    override suspend fun setAvatarVersion(version: Long) {}
     override suspend fun setOnboardingDone(done: Boolean) { this.done.value = done }
 }
 

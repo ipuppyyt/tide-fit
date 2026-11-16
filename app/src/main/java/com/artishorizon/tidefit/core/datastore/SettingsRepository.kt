@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.artishorizon.tidefit.domain.model.ReminderKind
@@ -23,11 +24,14 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 class SettingsRepository @Inject constructor(@ApplicationContext private val context: Context) : AppSettings, ReminderSettings {
     private object Keys {
         val palette = stringPreferencesKey("palette")
+        val avatar = longPreferencesKey("avatar_version")
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val glassMl = intPreferencesKey("default_glass_ml")
     }
 
     override val palette: Flow<String?> = context.dataStore.data.map { it[Keys.palette] }
+
+    override val avatarVersion: Flow<Long> = context.dataStore.data.map { it[Keys.avatar] ?: 0L }
 
     override val onboardingDone: Flow<Boolean> = context.dataStore.data.map { it[Keys.onboardingDone] ?: false }
 
@@ -50,5 +54,6 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
 
     override suspend fun setDefaultGlassMl(ml: Int) { context.dataStore.edit { it[Keys.glassMl] = ml.coerceIn(50, 2000) } }
     override suspend fun setPalette(id: String?) { context.dataStore.edit { if (id == null) it.remove(Keys.palette) else it[Keys.palette] = id } }
+    override suspend fun setAvatarVersion(version: Long) { context.dataStore.edit { it[Keys.avatar] = version } }
     override suspend fun setOnboardingDone(done: Boolean) { context.dataStore.edit { it[Keys.onboardingDone] = done } }
 }
