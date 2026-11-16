@@ -57,6 +57,18 @@
                 android:resource="@xml/widget_today_info" />
         </receiver>
 
+        <receiver android:name=".widget.CaloriesWidget" android:exported="false" android:label="Calories">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_calories_info" />
+        </receiver>
+        <receiver android:name=".widget.WaterWidget" android:exported="false" android:label="Water">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_water_info" />
+        </receiver>
+        <receiver android:name=".widget.WorkoutWidget" android:exported="false" android:label="Workout">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_workout_info" />
+        </receiver>
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"

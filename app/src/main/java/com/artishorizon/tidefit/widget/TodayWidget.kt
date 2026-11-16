@@ -36,6 +36,7 @@ interface WidgetEntryPoint {
     fun profiles(): ProfileRepository
     fun appSettings(): AppSettings
     fun streaks(): StreakTracker
+    fun workouts(): com.artishorizon.tidefit.domain.repository.WorkoutRepository
     fun clock(): Clock
 }
 

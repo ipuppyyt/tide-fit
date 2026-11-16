@@ -2,4 +2,7 @@
 <resources>
     <string name="app_name">TIDE Fit</string>
     <string name="widget_description">Calories left, water and your streak at a glance, with a one-tap water button.</string>
+    <string name="widget_calories_description">Calories eaten and left today with a progress loop.</string>
+    <string name="widget_water_description">Water so far today in litres, with a rising gauge.</string>
+    <string name="widget_workout_description">Time trained today with a progress bar.</string>
 </resources>
