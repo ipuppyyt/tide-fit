@@ -2,7 +2,17 @@ package com.artishorizon.tidefit.core.designsystem
 
 import android.app.Activity
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
@@ -50,9 +60,22 @@ fun TideFitTheme(
         }
     }
     CompositionLocalProvider(LocalFitColors provides if (dark) DarkFitColors else LightFitColors) {
-        MaterialTheme(colorScheme = scheme, typography = FitTypography) {
+        MaterialTheme(colorScheme = scheme, typography = FitTypography, shapes = FitShapes) {
             // Paint the theme's own background so it never depends on the window's static colour.
-            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, content = content)
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Box(Modifier.fillMaxSize()) {
+                    content()
+                    // Scrim so scrolling content fades out under the status bar instead of colliding with the clock.
+                    val bg = MaterialTheme.colorScheme.background
+                    val bar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                    val height = bar + 20.dp
+                    val solid = bar / height
+                    Box(
+                        Modifier.align(Alignment.TopCenter).fillMaxWidth().height(height)
+                            .background(Brush.verticalGradient(0f to bg, solid to bg, 1f to bg.copy(alpha = 0f)))
+                    )
+                }
+            }
         }
     }
 }

@@ -14,9 +14,8 @@ import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import com.artishorizon.tidefit.core.designsystem.components.FloatingTabBar
+import com.artishorizon.tidefit.core.designsystem.components.TabItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -112,24 +111,17 @@ fun MainNavigation() {
     Scaffold(
         bottomBar = {
             if (showBar) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
-                    topLevel.forEach { item ->
-                        val selected = item.matches(destination)
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                nav.navigate(item.route) {
-                                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(if (selected) item.selectedIcon else item.icon, contentDescription = null) },
-                            label = { Text(item.label) },
-                            colors = NavigationBarItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primaryContainer)
-                        )
+                FloatingTabBar(
+                    items = topLevel.map { TabItem(it.label, it.icon, it.selectedIcon) },
+                    selectedIndex = topLevel.indexOfFirst { it.matches(destination) }.coerceAtLeast(0),
+                    onSelect = { index ->
+                        nav.navigate(topLevel[index].route) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                }
+                )
             }
         }
     ) { padding: PaddingValues ->
@@ -147,7 +139,15 @@ fun MainNavigation() {
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
+                    onOpenWorkouts = {
+                        nav.navigate(WorkoutsRoute) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onOpenWeight = { nav.navigate(WeightRoute) }
                 )
             }
             composable<NutritionRoute> {

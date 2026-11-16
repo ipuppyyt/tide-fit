@@ -1,35 +1,54 @@
 package com.artishorizon.tidefit.core.designsystem.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.artishorizon.tidefit.core.designsystem.FitTheme
 import com.artishorizon.tidefit.core.designsystem.Radii
 import com.artishorizon.tidefit.core.designsystem.Sizes
 import com.artishorizon.tidefit.core.designsystem.Spacing
 import com.artishorizon.tidefit.domain.model.NutritionSource
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Top bar for pushed screens: round back button and a bold left-aligned title, no container colour. */
 @Composable
 fun FitTopBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
-    TopAppBar(
-        title = { Text(title) },
-        modifier = modifier,
-        navigationIcon = { IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-        actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-    )
+    Row(
+        modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 64.dp).padding(horizontal = Spacing.lg),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier.size(44.dp)
+                .pressable(onClick = onBack)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .border(Sizes.borderThin, FitTheme.colors.border, CircleShape),
+            contentAlignment = Alignment.Center
+        ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", modifier = Modifier.size(22.dp)) }
+        Text(
+            title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(horizontal = Spacing.md)
+        )
+        actions()
+    }
 }
 
 /** Verified / Sourced / Estimated marker so estimated numbers are never mistaken for exact ones. */

@@ -21,7 +21,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
@@ -94,7 +96,14 @@ fun LineChart(series: List<ChartSeries>, modifier: Modifier = Modifier, unitLabe
                 if (!s.dotsOnly && s.points.size > 1) {
                     val path = Path()
                     s.points.forEachIndexed { i, p -> if (i == 0) path.moveTo(x(p.date), y(p.value)) else path.lineTo(x(p.date), y(p.value)) }
-                    drawPath(path, s.color, style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round))
+                    val fill = Path().apply {
+                        addPath(path)
+                        lineTo(x(s.points.last().date), size.height)
+                        lineTo(x(s.points.first().date), size.height)
+                        close()
+                    }
+                    drawPath(fill, Brush.verticalGradient(listOf(s.color.copy(alpha = 0.28f), s.color.copy(alpha = 0f))))
+                    drawPath(path, s.color, style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
                 if (s.dotsOnly || s.points.size == 1) {
                     s.points.forEach { p -> drawCircle(s.color.copy(alpha = 0.6f), 3.dp.toPx(), Offset(x(p.date), y(p.value))) }
@@ -103,7 +112,7 @@ fun LineChart(series: List<ChartSeries>, modifier: Modifier = Modifier, unitLabe
         }
         val fmt = { v: Double -> "%.1f".format(java.util.Locale.US, v) }
         Text(
-            "${minDate} → ${maxDate}  ·  low ${fmt(all.minOf { it.value })}, high ${fmt(all.maxOf { it.value })} $unitLabel".trim(),
+            "${minDate} â†’ ${maxDate}  Â·  low ${fmt(all.minOf { it.value })}, high ${fmt(all.maxOf { it.value })} $unitLabel".trim(),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

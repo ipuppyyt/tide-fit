@@ -149,7 +149,7 @@ fun TargetsCard(targets: DailyTargets?) {
             }
             if (targets == null) {
                 Text(
-                    "No targets set yet. Targets will be adjustable once nutrition tracking arrives.",
+                    "No targets yet. Open Nutrition to calculate an estimate from your profile.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
