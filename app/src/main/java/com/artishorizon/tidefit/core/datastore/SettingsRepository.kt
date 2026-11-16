@@ -61,6 +61,9 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
         }
     }
 
+    override suspend fun lastMilestone(): Int = context.dataStore.data.first()[intPreferencesKey("streak_last_milestone")] ?: 0
+    override suspend fun setLastMilestone(days: Int) { context.dataStore.edit { it[intPreferencesKey("streak_last_milestone")] = days } }
+
     override suspend fun setDefaultGlassMl(ml: Int) { context.dataStore.edit { it[Keys.glassMl] = ml.coerceIn(50, 2000) } }
     override suspend fun setPalette(id: String?) { context.dataStore.edit { if (id == null) it.remove(Keys.palette) else it[Keys.palette] = id } }
     override suspend fun setAvatarVersion(version: Long) { context.dataStore.edit { it[Keys.avatar] = version } }

@@ -44,3 +44,16 @@ class StreakCalcTest {
         assertEquals(3, StreakCalc.nextMilestone(0)); assertEquals(14, StreakCalc.nextMilestone(7))
     }
 }
+
+class StreakMilestoneTest {
+    private val today = LocalDate.of(2026, 11, 16)
+    private fun streak(len: Int, todayDone: Boolean = true): com.artishorizon.tidefit.domain.calc.Streak {
+        val start = if (todayDone) 0 else 1
+        return StreakCalc.compute((start until start + len).map { today.minusDays(it.toLong()) }.toSet(), today)
+    }
+
+    @Test fun firesOnMilestoneDay() { assertEquals(7, StreakCalc.milestoneHit(streak(7), 3)) }
+    @Test fun notBetweenMilestones() { assertEquals(null, StreakCalc.milestoneHit(streak(8), 7)) }
+    @Test fun onlyOncePerMilestone() { assertEquals(null, StreakCalc.milestoneHit(streak(7), 7)) }
+    @Test fun waitsUntilTodayIsLogged() { assertEquals(null, StreakCalc.milestoneHit(streak(7, todayDone = false), 3)) }
+}

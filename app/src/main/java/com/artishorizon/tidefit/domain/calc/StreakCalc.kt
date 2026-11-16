@@ -40,5 +40,9 @@ object StreakCalc {
         return Streak(current, maxOf(best, current), todayDone, week, activeDays)
     }
 
+    /** The milestone to celebrate right now, or null. Only fires once today has an entry and it is above the last one announced. */
+    fun milestoneHit(streak: Streak, lastAnnounced: Int): Int? =
+        streak.current.takeIf { streak.todayDone && it in MILESTONES && it > lastAnnounced }
+
     fun nextMilestone(current: Int): Int? = MILESTONES.firstOrNull { it > current }
 }

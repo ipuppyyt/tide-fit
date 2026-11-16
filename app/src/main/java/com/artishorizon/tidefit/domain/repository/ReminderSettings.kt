@@ -8,4 +8,7 @@ interface ReminderSettings {
     fun observe(): Flow<List<ReminderSetting>>
     suspend fun get(kind: ReminderKind): ReminderSetting
     suspend fun set(setting: ReminderSetting)
+    /** The highest streak milestone already celebrated, so each one is announced once. */
+    suspend fun lastMilestone(): Int
+    suspend fun setLastMilestone(days: Int)
 }

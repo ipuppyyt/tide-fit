@@ -11,7 +11,7 @@ enum class ReminderKind(
     WATER("Water", "Nudge to drink if you're behind on your water target", 15 * 60, "Time for some water", "You're behind on your water target today."),
     MEALS("Log meals", "Reminder to log food if nothing is logged yet today", 20 * 60, "Log today's meals", "Nothing logged yet today. It only takes a minute."),
     WEIGH_IN("Weigh-in", "Reminder to weigh in if you haven't today", 8 * 60, "Morning weigh-in", "You haven't logged your weight today."),
-    STREAK("Streak", "Evening heads-up if today would break your streak", 21 * 60, "Keep your streak alive", "Log a meal or finish a workout to keep your streak going.")
+    STREAK("Streak", "Evening heads-up if today would break your streak, and a cheer at 7, 30 days and more", 21 * 60, "Keep your streak alive", "Log a meal or finish a workout to keep your streak going.")
 }
 
 /** [minutes] is the time of day as minutes after midnight (0..1439). */
