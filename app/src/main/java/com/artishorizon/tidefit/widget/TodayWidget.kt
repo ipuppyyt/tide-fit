@@ -7,8 +7,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.compose.ui.graphics.toArgb
 import com.artishorizon.tidefit.MainActivity
 import com.artishorizon.tidefit.R
+import com.artishorizon.tidefit.core.designsystem.resolve
 import com.artishorizon.tidefit.data.StreakTracker
 import com.artishorizon.tidefit.domain.model.BeverageKind
 import com.artishorizon.tidefit.domain.repository.AppSettings
@@ -82,6 +84,14 @@ class TodayWidget : AppWidgetProvider() {
             val streak = ep.streaks().current()
 
             val views = RemoteViews(context.packageName, R.layout.widget_today)
+            val hero = com.artishorizon.tidefit.core.designsystem.Palettes.resolve(context, ep.appSettings().palette.first()).fit
+            val ink = hero.onHero.toArgb()
+            val soft = hero.onHero.copy(alpha = 0.72f).toArgb()
+            views.setInt(R.id.widget_bg, "setColorFilter", hero.hero.toArgb())
+            views.setInt(R.id.widget_flame_icon, "setColorFilter", ink)
+            views.setInt(R.id.widget_drop_icon, "setColorFilter", soft)
+            listOf(R.id.widget_kcal, R.id.widget_streak, R.id.widget_add_water).forEach { views.setTextColor(it, ink) }
+            listOf(R.id.widget_kcal_label, R.id.widget_water).forEach { views.setTextColor(it, soft) }
             if (targets != null) {
                 val left = targets.caloriesKcal - eaten
                 views.setTextViewText(R.id.widget_kcal, "%,d".format(kotlin.math.abs(left)))

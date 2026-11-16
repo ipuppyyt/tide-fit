@@ -107,3 +107,11 @@ fun systemPalette(): Palette {
 /** Stored palette id, or null meaning "Auto": follow the system. */
 @Composable
 fun resolvePalette(id: String?): Palette = Palettes.byId(id) ?: systemPalette()
+
+/** Same choice as [resolvePalette], for code outside Compose (the home screen widget). */
+fun Palettes.resolve(context: android.content.Context, id: String?): Palette {
+    byId(id)?.let { return it }
+    val dark = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    val accent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicDarkColorScheme(context).primary else null
+    return fromSystem(accent, dark)
+}

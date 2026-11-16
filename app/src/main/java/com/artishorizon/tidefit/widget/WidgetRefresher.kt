@@ -23,14 +23,15 @@ class WidgetRefresher @Inject constructor(
     private val food: FoodLogRepository,
     private val water: WaterRepository,
     private val streaks: StreakTracker,
+    private val settings: com.artishorizon.tidefit.domain.repository.AppSettings,
     private val clock: Clock
 ) {
     @OptIn(FlowPreview::class)
     fun start(scope: CoroutineScope) {
         val today = LocalDate.now(clock)
         scope.launch {
-            combine(food.observeDay(today), water.observeDay(today), streaks.observe()) { f, w, s ->
-                listOf(f.size, f.sumOf { it.total.calories }, w.filter { it.kind == BeverageKind.WATER }.sumOf { it.amountMl }, s.current, s.todayDone)
+            combine(food.observeDay(today), water.observeDay(today), streaks.observe(), settings.palette) { f, w, s, p ->
+                listOf(f.size, f.sumOf { it.total.calories }, w.filter { it.kind == BeverageKind.WATER }.sumOf { it.amountMl }, s.current, s.todayDone, p)
             }
                 .debounce(500)
                 .collect { runCatching { TodayWidget.updateAll(context) } }
