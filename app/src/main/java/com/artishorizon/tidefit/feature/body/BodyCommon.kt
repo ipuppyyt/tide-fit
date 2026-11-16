@@ -112,7 +112,7 @@ fun LineChart(series: List<ChartSeries>, modifier: Modifier = Modifier, unitLabe
         }
         val fmt = { v: Double -> "%.1f".format(java.util.Locale.US, v) }
         Text(
-            "${minDate} â†’ ${maxDate}  Â·  low ${fmt(all.minOf { it.value })}, high ${fmt(all.maxOf { it.value })} $unitLabel".trim(),
+            "${minDate} → ${maxDate}  ·  low ${fmt(all.minOf { it.value })}, high ${fmt(all.maxOf { it.value })} $unitLabel".trim(),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

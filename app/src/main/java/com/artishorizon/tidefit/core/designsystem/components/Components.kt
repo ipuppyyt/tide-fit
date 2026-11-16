@@ -165,8 +165,9 @@ fun FitTextField(
         shape = Radii.md,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            errorContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            // One step lighter than dialogs (which use surfaceContainerHigh) so fields stay visible inside them.
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            errorContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             errorIndicatorColor = Color.Transparent,
