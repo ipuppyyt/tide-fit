@@ -7,6 +7,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.Medication
+import androidx.compose.material.icons.outlined.MonitorWeight
+import androidx.compose.material.icons.outlined.QueryStats
+import androidx.compose.material.icons.outlined.Straighten
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
+import com.artishorizon.tidefit.core.designsystem.FitTheme
+import com.artishorizon.tidefit.core.designsystem.components.HeroCard
+import com.artishorizon.tidefit.core.designsystem.components.IconBadge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -130,46 +158,76 @@ fun ProgressScreen(
     vm: ProgressViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val c = FitTheme.colors
     Column(
         Modifier.fillMaxSize().padding(contentPadding).verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.md),
-        verticalArrangement = Arrangement.spacedBy(Spacing.md)
+            .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
-        Text("Progress", style = MaterialTheme.typography.headlineMedium)
+        Column {
+            Text("Insights", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Progress", style = MaterialTheme.typography.headlineLarge)
+        }
+
+        HeroCard(onClick = onOpenCoach) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                    Text("ChatGPT coaching", style = MaterialTheme.typography.headlineMedium)
+                    Text("Export your data, paste ChatGPT's reply, review and approve changes.", style = MaterialTheme.typography.bodyMedium)
+                }
+                Box(Modifier.size(48.dp).clip(CircleShape).background(c.onHero), contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = c.hero)
+                }
+            }
+        }
+
         Text(
             "Averages use only the days you logged. Missing days are never counted as zero.",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        FitCard(onClick = onOpenCoach) {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Text("ChatGPT coaching", style = MaterialTheme.typography.titleMedium)
-                Text("Export your data, paste ChatGPT's reply, review and approve changes.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+
         SectionHeader("Body")
-        AreaCard("Weight", state.weight, onOpenWeight)
-        AreaCard("Measurements", state.measurements, onOpenMeasurements)
+        TileRow {
+            AreaTile("Weight", Icons.Outlined.MonitorWeight, c.water, state.weight, onOpenWeight, Modifier.weight(1f))
+            AreaTile("Measurements", Icons.Outlined.Straighten, c.carbs, state.measurements, onOpenMeasurements, Modifier.weight(1f))
+        }
+
         SectionHeader("Lifestyle")
-        AreaCard("Sleep", state.sleep, onOpenSleep)
-        AreaCard("Recovery", state.recovery, onOpenRecovery)
-        AreaCard("Supplements", state.supplements, onOpenSupplements)
+        TileRow {
+            AreaTile("Sleep", Icons.Outlined.Bedtime, c.fat, state.sleep, onOpenSleep, Modifier.weight(1f))
+            AreaTile("Recovery", Icons.Outlined.Favorite, c.protein, state.recovery, onOpenRecovery, Modifier.weight(1f))
+        }
+        AreaTile("Supplements", Icons.Outlined.Medication, c.fibre, state.supplements, onOpenSupplements, Modifier.fillMaxWidth())
+
         SectionHeader("Training")
         FitCard(onClick = onOpenTraining) {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Text("Training stats", style = MaterialTheme.typography.titleMedium)
-                Text("Weekly volume, sets per muscle and personal records.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                IconBadge(Icons.Outlined.QueryStats, MaterialTheme.colorScheme.primary)
+                Column(Modifier.weight(1f)) {
+                    Text("Training stats", style = MaterialTheme.typography.titleMedium)
+                    Text("Weekly volume, sets per muscle and personal records.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
+        Spacer(Modifier.height(96.dp))
     }
 }
 
 @Composable
-private fun AreaCard(title: String, data: ProgressCardData, onClick: () -> Unit) {
-    FitCard(onClick = onClick) {
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+private fun TileRow(content: @Composable RowScope.() -> Unit) {
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(Spacing.md), content = content)
+}
+
+@Composable
+private fun AreaTile(title: String, icon: ImageVector, tint: Color, data: ProgressCardData, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    FitCard(modifier.fillMaxHeight(), onClick = onClick) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            IconBadge(icon, tint, size = 40.dp)
             Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(data.headline ?: "No data yet", style = MaterialTheme.typography.titleLarge,
-                color = if (data.headline == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface)
+            Text(
+                data.headline ?: "No data yet", style = MaterialTheme.typography.titleLarge,
+                color = if (data.headline == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+            )
             Text(data.detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

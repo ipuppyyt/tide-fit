@@ -381,3 +381,12 @@ fun EstimateBadge(text: String = "Estimate", modifier: Modifier = Modifier) {
             .padding(horizontal = Spacing.sm, vertical = Spacing.xxs)
     )
 }
+
+/** Round tinted icon holder that gives list rows and tiles a visual anchor. */
+@Composable
+fun IconBadge(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, size: androidx.compose.ui.unit.Dp = 44.dp) {
+    Box(
+        modifier.size(size).clip(androidx.compose.foundation.shape.CircleShape).background(tint.copy(alpha = 0.16f)),
+        contentAlignment = Alignment.Center
+    ) { Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(size * 0.5f)) }
+}

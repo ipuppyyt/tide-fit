@@ -9,6 +9,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.QueryStats
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import com.artishorizon.tidefit.core.designsystem.FitTheme
+import com.artishorizon.tidefit.core.designsystem.Radii
+import com.artishorizon.tidefit.core.designsystem.components.HeroCard
+import com.artishorizon.tidefit.core.designsystem.components.IconBadge
+import com.artishorizon.tidefit.core.designsystem.components.QuickTile
+import com.artishorizon.tidefit.core.designsystem.components.pressable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,41 +106,54 @@ fun WorkoutsScreen(
             .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
-        Text("Workouts", style = MaterialTheme.typography.headlineLarge)
+        Column {
+            Text("Train", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Workouts", style = MaterialTheme.typography.headlineLarge)
+        }
 
-        state.active?.let { w ->
-            FitCard(onClick = { onOpenWorkout(w.id) }) {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                    Text("Workout in progress", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(w.name, style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "${w.sets.count { it.completed }} of ${w.sets.size} sets done. Tap to continue.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+        // Hero: resume the running session, or invite the next one.
+        val active = state.active
+        HeroCard(onClick = if (active != null) ({ onOpenWorkout(active.id) }) else null) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                if (active != null) {
+                    val done = active.sets.count { it.completed }
+                    Text("In progress", style = MaterialTheme.typography.labelLarge)
+                    Text(active.name, style = MaterialTheme.typography.displayMedium)
+                    Text("$done of ${active.sets.size} sets done", style = MaterialTheme.typography.bodyMedium)
+                    DarkPill("Continue workout") { onOpenWorkout(active.id) }
+                } else {
+                    Text("Ready when you are", style = MaterialTheme.typography.labelLarge)
+                    Text("Start training", style = MaterialTheme.typography.displayMedium)
+                    Text("Log sets, track rest and beat your last session.", style = MaterialTheme.typography.bodyMedium)
+                    DarkPill("Start empty workout") { vm.start(null, onOpenWorkout) }
                 }
             }
         }
 
-        if (state.active == null) {
-            PrimaryButton("Start empty workout", { vm.start(null, onOpenWorkout) }, Modifier.fillMaxWidth())
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            QuickTile(Icons.Outlined.FitnessCenter, "Exercises", onOpenExercises)
+            QuickTile(Icons.Outlined.History, "History", onOpenHistory)
+            QuickTile(Icons.Outlined.QueryStats, "Stats", onOpenStats)
+            QuickTile(Icons.Outlined.Add, "Routine", onClick = { onEditRoutine(0) })
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            SecondaryButton("Exercises", onOpenExercises, Modifier.weight(1f))
-            SecondaryButton("History", onOpenHistory, Modifier.weight(1f))
-            SecondaryButton("Stats", onOpenStats, Modifier.weight(1f))
-        }
-
-        SectionHeader("Routines") {
-            com.artishorizon.tidefit.core.designsystem.components.TextButton({ onEditRoutine(0) }) { Text("New routine") }
-        }
+        SectionHeader("Routines")
         if (state.routines.isEmpty()) {
-            Text("No routines yet. Create one to start a planned workout in one tap.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            FitCard(onClick = { onEditRoutine(0) }) {
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                    IconBadge(Icons.Outlined.Add, MaterialTheme.colorScheme.primary)
+                    Column {
+                        Text("Create your first routine", style = MaterialTheme.typography.titleMedium)
+                        Text("No routines yet. Create one to start a planned workout in one tap.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
         }
         state.routines.forEach { r ->
             FitCard {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                        IconBadge(Icons.Outlined.FitnessCenter, MaterialTheme.colorScheme.primary)
                         Column(Modifier.weight(1f)) {
                             Text(r.name, style = MaterialTheme.typography.titleMedium)
                             Text(
@@ -151,8 +181,9 @@ fun WorkoutsScreen(
         }
         state.recent.forEach { s ->
             FitCard(onClick = { onOpenSummary(s.id) }) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                    IconBadge(Icons.Outlined.History, FitTheme.colors.water)
+                    Column(Modifier.weight(1f)) {
                         Text(s.name, style = MaterialTheme.typography.titleSmall)
                         Text(
                             s.startedAt.atZone(zone).toLocalDate().let { friendlyDate(it, LocalDate.now(zone)) } + " · ${plural(s.setCount, "set")}",
@@ -163,7 +194,16 @@ fun WorkoutsScreen(
                 }
             }
         }
+        Spacer(Modifier.height(96.dp))
     }
+}
+
+/** Dark pill that sits on the lime hero card. */
+@Composable
+private fun DarkPill(text: String, onClick: () -> Unit) {
+    Box(
+        Modifier.clip(Radii.pill).background(FitTheme.colors.onHero).pressable(onClick = onClick).padding(horizontal = 24.dp, vertical = 14.dp)
+    ) { Text(text, style = MaterialTheme.typography.labelLarge, color = FitTheme.colors.hero) }
 }
 
 fun friendlyDate(date: LocalDate, today: LocalDate): String = when (date) {
