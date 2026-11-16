@@ -98,8 +98,7 @@ private val topLevel = listOf(
     TopLevel(HomeRoute, "Home", "house") { it?.hasRoute<HomeRoute>() == true },
     TopLevel(NutritionRoute, "Nutrition", "utensils") { it?.hasRoute<NutritionRoute>() == true },
     TopLevel(WorkoutsRoute, "Workouts", "dumbbell") { it?.hasRoute<WorkoutsRoute>() == true },
-    TopLevel(ProgressRoute, "Progress", "chart-no-axes-combined") { it?.hasRoute<ProgressRoute>() == true },
-    TopLevel(ProfileRoute, "Profile", "user") { it?.hasRoute<ProfileRoute>() == true }
+    TopLevel(ProgressRoute, "Progress", "chart-no-axes-combined") { it?.hasRoute<ProgressRoute>() == true }
 )
 
 @Composable
@@ -148,7 +147,8 @@ fun MainNavigation() {
                             restoreState = true
                         }
                     },
-                    onOpenWeight = { nav.navigate(WeightRoute) }
+                    onOpenWeight = { nav.navigate(WeightRoute) },
+                    onOpenProfile = { nav.navigate(ProfileRoute) }
                 )
             }
             composable<NutritionRoute> {
@@ -225,7 +225,7 @@ fun MainNavigation() {
             composable<SleepRoute> { SleepScreen(onBack = { nav.popBackStack() }) }
             composable<RecoveryRoute> { RecoveryScreen(onBack = { nav.popBackStack() }) }
             composable<SupplementsRoute> { SupplementsScreen(onBack = { nav.popBackStack() }) }
-            composable<ProfileRoute> { ProfileScreen(onEditProfile = { nav.navigate(ProfileEditRoute) }, onOpenData = { nav.navigate(DataRoute) }, contentPadding = content) }
+            composable<ProfileRoute> { ProfileScreen(onBack = { nav.popBackStack() }, onEditProfile = { nav.navigate(ProfileEditRoute) }, onOpenData = { nav.navigate(DataRoute) }) }
             composable<DataRoute> { DataScreen(onBack = { nav.popBackStack() }) }
             composable<ProfileEditRoute> { ProfileEditScreen(onDone = { nav.popBackStack() }) }
         }

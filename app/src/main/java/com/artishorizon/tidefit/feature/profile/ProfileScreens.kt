@@ -52,19 +52,19 @@ import com.artishorizon.tidefit.feature.profile.form.TrainingSection
 import java.util.Locale
 
 @Composable
-fun ProfileScreen(onEditProfile: () -> Unit, onOpenData: () -> Unit, contentPadding: PaddingValues, viewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(onBack: () -> Unit, onEditProfile: () -> Unit, onOpenData: () -> Unit, viewModel: ProfileViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     if (state.loading) { LoadingState(); return }
 
+    Column(Modifier.fillMaxSize()) {
+    com.artishorizon.tidefit.core.designsystem.components.FitTopBar("Profile", onBack)
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(contentPadding)
-            .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.lg),
+            .padding(horizontal = Spacing.screenHorizontal, vertical = Spacing.md),
         verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
-        Text("Profile", style = MaterialTheme.typography.headlineLarge)
 
         state.profile?.let { p ->
             ProfileSummary(p, onEditProfile)
@@ -108,6 +108,7 @@ fun ProfileScreen(onEditProfile: () -> Unit, onOpenData: () -> Unit, contentPadd
                 )
             }
         }
+    }
     }
 }
 

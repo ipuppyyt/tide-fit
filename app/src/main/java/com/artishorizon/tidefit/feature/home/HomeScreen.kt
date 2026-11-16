@@ -53,6 +53,7 @@ import com.artishorizon.tidefit.core.designsystem.components.LoadingState
 import com.artishorizon.tidefit.core.designsystem.components.MacroIndicator
 import com.artishorizon.tidefit.core.designsystem.components.ProgressRing
 import com.artishorizon.tidefit.core.designsystem.components.QuickTile
+import com.artishorizon.tidefit.core.designsystem.components.pressable
 import com.artishorizon.tidefit.core.designsystem.components.SectionHeader
 import com.artishorizon.tidefit.core.util.oneDecimal
 import com.artishorizon.tidefit.core.util.rounded
@@ -132,6 +133,7 @@ fun HomeScreen(
     onOpenNutrition: () -> Unit,
     onOpenWorkouts: () -> Unit,
     onOpenWeight: () -> Unit,
+    onOpenProfile: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -159,14 +161,17 @@ fun HomeScreen(
                 )
                 Text(if (profile != null) "Hello, ${profile.name}" else "Today", style = MaterialTheme.typography.headlineLarge)
             }
-            if (profile != null && profile.name.isNotBlank()) {
-                Box(
-                    Modifier.size(48.dp).clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                        .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                        .semantics { contentDescription = "Profile: ${profile.name}" },
-                    contentAlignment = Alignment.Center
-                ) { Text(profile.name.first().uppercase(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
+            Box(
+                Modifier.size(48.dp).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    .pressable(role = androidx.compose.ui.semantics.Role.Button, onClick = onOpenProfile)
+                    .semantics { contentDescription = "Profile${profile?.name?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""}" },
+                contentAlignment = Alignment.Center
+            ) {
+                val initial = profile?.name?.firstOrNull()
+                if (initial != null) Text(initial.uppercase(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                else Icon(lucide("user"), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
         }
 
